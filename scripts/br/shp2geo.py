@@ -48,15 +48,16 @@ def make_partition(buffer, group_name, group, in_group_id, skip_existing, level,
     if skip_existing and os.path.isfile(f_name):
         return
     os.makedirs(os.path.dirname(f_name), exist_ok=True)
+    feats = []
+    for feature in buffer:
+        if feature.get('properties').get(identifier) in list(group[cluster_identifer].astype(str).unique()):
+            if isinstance(feature.get('geometry').get('coordinates'), tuple):
+                feature['geometry']['coordinates'] = list(feature.get('geometry').get('coordinates'))
+                feats.append(list(rewind(feature)))
+            else: 
+                feats.append(rewind(feature))
     geojson = open(f_name, "w")
-    geojson.write(
-        json.dumps(
-            rewind({
-                "type": "FeatureCollection", 
-                "features": [feature for feature in buffer if feature.get('properties').get(identifier) in list(group[cluster_identifer].astype(str).unique())]
-            })
-        )
-    )
+    geojson.write(json.dumps({"type": "FeatureCollection", "features": feats}))
     geojson.close()
 
 # Converting files
