@@ -1,0 +1,3 @@
+Downloaded from IBGE in Apr 28th, 2020.
+
+Unzip the REGIC data from IBGE in this directory and run shp2geojson.py
