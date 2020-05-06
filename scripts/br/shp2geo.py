@@ -43,7 +43,7 @@ datasets = [
 
 # Saving partition
 def make_partition(buffer, group_name, group, skip_existing, level, res, identifier, cluster_identifer):
-    f_name = f'geojson/br/{level}/{res}/{group_name}_q0.json'
+    f_name = f'../../geojson/br/{level}/{res}/{group_name}_q0.json'
     if skip_existing and os.path.isfile(f_name):
         return
     os.makedirs(os.path.dirname(f_name), exist_ok=True)
@@ -60,7 +60,7 @@ def make_partition(buffer, group_name, group, skip_existing, level, res, identif
 def convert_shp(clusters, skip_existing, path, f_name, au_type, identifier, cluster_identifer):
     # read the shapefile
     print(f'Reading from {f_name}')
-    reader = shapefile.Reader(f'shapes/{path}/{f_name}.shp')
+    reader = shapefile.Reader(f'../../shapes/{path}/{f_name}.shp')
     #reader.encoding="iso-8859-1"
     fields = reader.fields[1:]
     field_names = [field[0] for field in fields]
@@ -73,8 +73,8 @@ def convert_shp(clusters, skip_existing, path, f_name, au_type, identifier, clus
     # write the GeoJSON files
     # Brazil
     print("Storing country")
-    if not (skip_existing and os.path.isfile(f'geojson/br/{au_type}_q0.json')):
-        geojson = open(f'geojson/br/{au_type}_q0.json', "w")
+    if not (skip_existing and os.path.isfile(f'../../geojson/br/{au_type}_q0.json')):
+        geojson = open(f'../../geojson/br/{au_type}_q0.json', "w")
         geojson.write(json.dumps({"type": "FeatureCollection", "features": buffer}))
         geojson.close()
 

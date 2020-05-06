@@ -21,7 +21,7 @@ def convert(origin, dest, quality_levels):
             topo_file.close()
 
 skip_existing = True
-strt = "geojson"
+strt = "../../geojson"
 
 quality_levels = list(linspace(0,0.01,4))
 quality_levels.reverse()
@@ -30,7 +30,7 @@ print(quality_levels)
 # for root, dirs, files in os.walk(strt):
 #     path = root.replace("geojson", "")
 #     for file in files:
-#         origin = './geojson{}/{}'.format(path,file)
+#         origin = '../../geojson{}/{}'.format(path,file)
 #         dest = './topojson{}/{}'.format(path,file)
 #         if file.endswith(".json") and not (skip_existing and os.path.isfile(dest)):
 #             try:
@@ -42,14 +42,14 @@ print(quality_levels)
 
 ## Teste UF
 # convert(
-#     'geojson/br/uf/regic_saude_regioes_alta_complexidade/29_q0.json',
-#     'topojson/br/uf/regic_saude_regioes_alta_complexidade/29_q0.json',
+#     '../../geojson/br/uf/regic_saude_regioes_alta_complexidade/29_q0.json',
+#     '../../topojson/br/uf/regic_saude_regioes_alta_complexidade/29_q0.json',
 #     quality_levels
 # )
 
 ## Teste BR
 convert(
-    'geojson/br/regic_saude_regioes_alta_complexidade_q0.json',
-    'topojson/br/regic_saude_regioes_alta_complexidade_q0.json',
+    '../../geojson/br/regic_saude_regioes_alta_complexidade_q0.json',
+    '../../topojson/br/regic_saude_regioes_alta_complexidade_q0.json',
     quality_levels
 )

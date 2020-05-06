@@ -34,7 +34,7 @@ def select_destination(main, det, quality, id_au):
         return f'br/{main}/{id_au}_q{quality}.json'
     elif main == 'br':    
         return f'br/{det}_q{quality}.json'
-    return f'geojson/br/{main}/{det}/{id_au}_q{quality}.json'
+    return f'../../geojson/br/{main}/{det}/{id_au}_q{quality}.json'
 
 def download_file(key, value, resolution, id_au, skip_existing):
     for key_detail, value_detail in enumerate(resolution):
