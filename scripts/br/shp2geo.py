@@ -2,6 +2,7 @@ import shapefile
 import json
 import os
 import pandas as pd
+from geojson_rewind import rewind
 
 datasets = [
     {
@@ -42,17 +43,19 @@ datasets = [
 ]
 
 # Saving partition
-def make_partition(buffer, group_name, group, skip_existing, level, res, identifier, cluster_identifer):
+def make_partition(buffer, group_name, group, in_group_id, skip_existing, level, res, identifier, cluster_identifer):
     f_name = f'../../geojson/br/{level}/{res}/{group_name}_q0.json'
     if skip_existing and os.path.isfile(f_name):
         return
     os.makedirs(os.path.dirname(f_name), exist_ok=True)
     geojson = open(f_name, "w")
     geojson.write(
-        json.dumps({
-            "type": "FeatureCollection", 
-            "features": [feature for feature in buffer if feature.get('properties').get(identifier) in list(group[cluster_identifer])]
-        })
+        json.dumps(
+            rewind({
+                "type": "FeatureCollection", 
+                "features": [feature for feature in buffer if feature.get('properties').get(identifier) in list(group[cluster_identifer].astype(str).unique())]
+            })
+        )
     )
     geojson.close()
 
@@ -86,8 +89,9 @@ def convert_shp(clusters, skip_existing, path, f_name, au_type, identifier, clus
     }
     for col, level in levels.items():
         print(f"Splitting into {level}")
-        for id_part, part in clusters.groupby(col):
-            make_partition(buffer, part, id_part, skip_existing, level, au_type, identifier, cluster_identifer)
+        grouped = clusters.groupby(col)
+        for id_part, part in grouped:
+            make_partition(buffer, id_part, part, col, skip_existing, level, au_type, identifier, cluster_identifer)
 
     return
 
