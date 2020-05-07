@@ -4,7 +4,7 @@ import os
 import subprocess
 from numpy import linspace
 import datetime
-# import multiprocess
+import multiprocess
 
 def convert(origin, dest, quality_levels, skip_existing):
     # Skip if all levels have already been generated and the flag is set
@@ -53,10 +53,15 @@ print(f"Simplification levels: {quality_levels}")
 #                 continue
 
 ## Multithread alternative
-with multiprocessing.Pool(processes=4) as pool:
-    for root, dirs, files in os.walk(strt):
-        path = root.replace("geojson", "")
-        pool.starmap(convert, ('../../geojson{}/{}'.format(path,file), '../../topojson{}/{}'.format(path,file), quality_levels, True))
+args=[]
+for root, dirs, files in os.walk(strt):
+    path = root.replace("../../geojson", "")
+    for file in files:
+        if file.endswith(".json"):
+            args.append(('../../geojson{}/{}'.format(path,file), '../../topojson{}/{}'.format(path,file), quality_levels, True))
+        
+with multiprocess.Pool(processes=4) as pool:
+    pool.starmap(convert, args)
     # pool.close()
 
 ## Teste UF
