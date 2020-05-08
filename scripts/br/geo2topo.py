@@ -11,6 +11,8 @@ def convert(origin, dest, quality_levels, skip_existing):
     global total_files, total_done
     # Skip if all levels have already been generated and the flag is set
     if skip_existing and all([os.path.isfile(dest.replace('q0', f'q{quality_key+1}')) for quality_key, quality_simpl in enumerate(quality_levels)]):
+        total_done = total_done + len(quality_levels)
+        print(f"Converting from geojson to topojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)       
         return
     
     with open(origin, 'r') as json_file:
@@ -22,6 +24,8 @@ def convert(origin, dest, quality_levels, skip_existing):
         dest_q = dest.replace('q0', f'q{quality_key+1}')
         # Skips if destination fila already exists and the flag is set
         if skip_existing and os.path.isfile(dest_q):
+            total_done = total_done + 1
+            print(f"Converting from geojson to topojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)       
             continue
         tj = tj_base.toposimplify(quality_simpl)
         if not os.path.exists(os.path.dirname(dest_q)):

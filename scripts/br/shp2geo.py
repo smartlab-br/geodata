@@ -86,9 +86,9 @@ def convert_shp(clusters, skip_existing, dataset, extension=None):
     if not (skip_existing and os.path.isfile(f'../../geojson/br/{au_type}_q0.json')):
         with open(f'../../geojson/br/{au_type}_q0.json', "w") as geojson:
             json.dump({"type": "FeatureCollection", "features": buffer}, geojson)
-            total_done = total_done + 1
-            print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
             # geojson.close() # Just to make sure it releases memory
+    total_done = total_done + 1
+    print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
 
     levels = {
         'region': 'macrorregiao',
@@ -103,7 +103,9 @@ def convert_shp(clusters, skip_existing, dataset, extension=None):
         print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
         for id_part, part in grouped:
             f_name = f'../../geojson/br/{level}/{au_type}/{id_part}_q0.json'
-            if skip_existing and os.path.isfile(f_name):   
+            if skip_existing and os.path.isfile(f_name):  
+                total_done = total_done + 1
+                print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True) 
                 continue            
             make_partition(buffer, f_name, part, col, dataset.get('identifier'), dataset.get('cluster_identifier'))
 
