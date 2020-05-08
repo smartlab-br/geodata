@@ -105,7 +105,7 @@ def convert_shp(clusters, skip_existing, dataset, extension=None):
             f_name = f'../../geojson/br/{level}/{au_type}/{id_part}_q0.json'
             if skip_existing and os.path.isfile(f_name):   
                 continue            
-            make_partition(buffer, f_name, part, col, dataset.get('identifier'), dataset.get('cluster_identifer'))
+            make_partition(buffer, f_name, part, col, dataset.get('identifier'), dataset.get('cluster_identifier'))
 
     return
 
@@ -147,7 +147,7 @@ def generate_regic(skip_existing):
     for dataset in datasets:
         convert_shp(clusters, True, dataset)
         if os.path.isfile('REGIC_melt.csv'):
-        convert_shp(clusters_ext, skip_existing, dataset, "ext")
+            convert_shp(clusters_ext, skip_existing, dataset, "ext")
 
 def generate_census(skip_existing):
     global total_files, total_done

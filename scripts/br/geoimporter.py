@@ -46,6 +46,8 @@ def download_file(key, value, resolution, id_au, skip_existing):
         for quality in qualities:
             f_name = select_destination(value, value_detail, quality, id_au)
             if skip_existing and os.path.isfile(f_name):
+                total_done = total_done + 1
+                print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
                 continue
             os.makedirs(os.path.dirname(f_name), exist_ok=True)
 
@@ -56,7 +58,7 @@ def download_file(key, value, resolution, id_au, skip_existing):
             with open(f_name, 'w', encoding='utf-8') as f:
                 json.dump(r.json(), f)
                 total_done = total_done + 1
-                print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
+                print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
                 # f.close() # Just to make sure it releases memory
 
 print(f"Starting topologies download...", end="\r", flush=True)
@@ -84,4 +86,4 @@ for key, value in enumerate(resolution):
             # print(f'Changing analysis unit to {au.get("id")}')
             download_file(key, value, resolution[key:], au.get("id"), skip_existing)
 
-print(f"All files downloaded!!!!")
+print(f"All files downloaded!!!!       ")
