@@ -1,8 +1,9 @@
 import requests
 import json
 import os
+import sys
+import math
 
-base_url = 'https://servicodados.ibge.gov.br/api/v2/malhas'
 base_url_au = 'https://servicodados.ibge.gov.br/api/v1/localidades'
 
 # 0. Nenhuma divisão político-administrativa é inserida no interior da malha
@@ -21,22 +22,26 @@ ua_url = {
     'municipio': 'municipios'
 }
 
-# Padrão de qualidade da imagem. Pode assumir valores de 1 a 4, sendo 1 o de qualidade mais inferior. Por padrão, assume o valor 4
-qualities = list(range(1,5))
-
-# Formato de renderização da malha. Útil quando o usuário preferir informar o formato de renderização diretamente na URL do navegador, sem a necessidade de informar o parâmetro Accept
-fmt = 'application/vnd.geo+json'
-
 def select_destination(main, det, quality, id_au):
+    base="../../geojson/"
     if main == det:
         if main == 'br':
-            return f'br/_q{quality}.json'
-        return f'br/{main}/{id_au}_q{quality}.json'
+            return f'{base}/br/_q{quality}.json'
+        return f'{base}/br/{main}/{id_au}_q{quality}.json'
     elif main == 'br':    
-        return f'br/{det}_q{quality}.json'
-    return f'../../geojson/br/{main}/{det}/{id_au}_q{quality}.json'
+        return f'{base}/br/{det}_q{quality}.json'
+    return f'{base}/br/{main}/{det}/{id_au}_q{quality}.json'
 
 def download_file(key, value, resolution, id_au, skip_existing):
+    global total_files, total_done
+    base_url = 'https://servicodados.ibge.gov.br/api/v2/malhas'
+
+    # Padrão de qualidade da imagem. Pode assumir valores de 1 a 4, sendo 1 o de qualidade mais inferior. Por padrão, assume o valor 4
+    qualities = list(range(1,5))
+
+    # Formato de renderização da malha. Útil quando o usuário preferir informar o formato de renderização diretamente na URL do navegador, sem a necessidade de informar o parâmetro Accept
+    fmt = 'application/vnd.geo+json'
+
     for key_detail, value_detail in enumerate(resolution):
         for quality in qualities:
             f_name = select_destination(value, value_detail, quality, id_au)
@@ -50,21 +55,33 @@ def download_file(key, value, resolution, id_au, skip_existing):
             # print(f'Generating: {f_name}')
             with open(f_name, 'w', encoding='utf-8') as f:
                 json.dump(r.json(), f)
-                f.close()
-    
-def run(skip_existing=False):
-    for key, value in enumerate(resolution):
-        if value == 'br':
-            download_file(key, value, resolution[key:], '', skip_existing)
-        else:
-            r_au = requests.get(f'{base_url_au}/{ua_url[value]}')
-            list_au = r_au.json()
-            f_name = f'analysis_units_{value}.json'
-            with open(f_name, 'w', encoding='utf-8') as f:
-                json.dump(r_au.json(), f)
-                f.close()
-            for au in list_au:
-                # print(f'Changing analysis unit to {au.get("id")}')
-                download_file(key, value, resolution[key:], au.get("id"), skip_existing)
+                total_done = total_done + 1
+                print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
+                # f.close() # Just to make sure it releases memory
 
-run(True)
+print(f"Starting topologies download...", end="\r", flush=True)
+if sys.argv[1] is None:
+    skip_existing = True
+else:
+    skip_existing = sys.argv[1].lower() in ['true', '1', 't', 'y', 'yes']
+
+total_files = 0
+total_done = 0
+
+for key, value in enumerate(resolution):
+    if value == 'br':
+        total_files = total_files + 1
+        download_file(key, value, resolution[key:], '', skip_existing)
+    else:
+        r_au = requests.get(f'{base_url_au}/{ua_url[value]}')
+        list_au = r_au.json()
+        total_files = total_files + len(list_au) * len(resolution[key:]) * 4
+        f_name = f'analysis_units_{value}.json'
+        with open(f_name, 'w', encoding='utf-8') as f:
+            json.dump(r_au.json(), f)
+            # f.close() # Just to make sure it releases memory
+        for au in list_au:
+            # print(f'Changing analysis unit to {au.get("id")}')
+            download_file(key, value, resolution[key:], au.get("id"), skip_existing)
+
+print(f"All files downloaded!!!!")
