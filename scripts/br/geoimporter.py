@@ -3,6 +3,9 @@ import json
 import os
 import sys
 import math
+from ftptool import FTPHost
+from io import BytesIO
+import zipfile
 
 base_url_au = 'https://servicodados.ibge.gov.br/api/v1/localidades'
 
@@ -57,9 +60,9 @@ def download_file(key, value, resolution, id_au, skip_existing):
             # print(f'Generating: {f_name}')
             with open(f_name, 'w', encoding='utf-8') as f:
                 json.dump(r.json(), f)
-                total_done = total_done + 1
-                print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
                 # f.close() # Just to make sure it releases memory
+            total_done = total_done + 1
+            print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
 
 print(f"Starting topologies download...", end="\r", flush=True)
 if sys.argv[1] is None:
@@ -86,4 +89,43 @@ for key, value in enumerate(resolution):
             # print(f'Changing analysis unit to {au.get("id")}')
             download_file(key, value, resolution[key:], au.get("id"), skip_existing)
 
-print(f"All files downloaded!!!!       ")
+print(f"Starting shapefiles download...", end="\r", flush=True)
+base_dest = '../../shapes/territorio'
+with open('analysis_units_uf.json') as json_file:
+    uf_sigla2cod = {uf.get('sigla').lower():uf.get('id') for uf in json.load(json_file)}
+
+ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
+for (dirname, subdirs, files) in ftp.walk("organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"):
+    for zip_file_name in files:
+        # Load only the zip files, except the municipalities
+        if '.zip' in zip_file_name and 'municipios' not in zip_file_name:
+            file_name = zip_file_name.replace(".zip","")
+            unit = str(uf_sigla2cod.get(file_name.split('_')[0]))
+            resolution = "_".join(file_name.split('_')[1:])
+
+            # Build target directory
+            dest = f"{base_dest}/uf/{resolution}"
+            
+            # Download the .zip
+            f = ftp.file_proxy(f"{dirname}/{zip_file_name}")
+            fp = BytesIO()
+            f.download(fp)
+
+            # Unzip it, renaming the target
+            zip_file = zipfile.ZipFile(fp)
+            for name in zip_file.namelist():
+                ext = name.split('.')[-1]
+                # zip_file.extract(name, f"{dest}/{unit}.{ext}")
+                with zip_file.open(name) as internal_file:
+                    f_name = f"{dest}/{unit}.{ext}"
+                    if skip_existing and os.path.isfile(f_name):
+                        total_done = total_done + 1
+                        print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
+                        continue
+                    os.makedirs(os.path.dirname(f_name), exist_ok=True)
+                    with open(f_name, "wb") as target_file:
+                        target_file.write(internal_file.read())
+                        total_done = total_done + 1
+                        print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
+
+print(f"All files downloaded and unzipped!!!!       ")

@@ -11,9 +11,9 @@ python3 geoimporter.py "$SKIP_EXISTING"
 # the conversion to topojson will automatically remove some polygons.
 python3 shp2geo.py "$SKIP_EXISTING"
 
-# STEP 3 - Generate new geojsons by combining levels the new 
-# analysis units introduced in step 2
-# python3 create_subgeo.py "$SKIP_EXISTING"
-
-# STEP 4 - Convert any geojson file in the geojson directory to topojson.
+# STEP 3 - Convert any geojson file in the geojson directory to topojson.
+# WARNING - All shapes with conversion issues will be logged to files. Check
+# the log directory for more information. Some issues, such as crossing vectors,
+# should be fixed in the shape file, thus allowing a smooth conversion to
+# geojson an then topojson.
 python3 geo2topo.py "$SKIP_EXISTING"
