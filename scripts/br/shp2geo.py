@@ -79,30 +79,70 @@ datasets = [
         "au_type": "regic_saude_regioes_baixamedia_complexidade",
         "identifier": "cod_Reg",
         "cluster_identifier": "cd_baixa_media_ext"
-    }
+    },
     # Territorial organizations
     {
         "origin": "territorio/uf/distritos", 
         "au_type": "distrito",
-        "identifier": "id",
+        "identifier": "CD_GEOCODD",
         "cluster_identifier": "distrito"
     },
     {
         "origin": "territorio/uf/subdistritos", 
         "au_type": "subdistrito",
-        "identifier": "id",
+        "identifier": "CD_GEOCODS",
         "cluster_identifier": "subdistrito"
     },
     {
         "origin": "territorio/uf/setores_censitarios", 
         "au_type": "setor_censitario",
-        "identifier": "id",
-        "cluster_identifier": "setor_censitario"
+        "identifier": "CD_GEOCODDI"#,
+        # "cluster_identifier": "setor_censitario"
     }
 ]
 
 # Each resolution must be clustered into certain (greater) levels of topology
 resolutions = {
+    'regic_saude_regioes_alta_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'CodReg'
+    },
+    'regic_saude_regioes_baixamedia_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'cod_Reg'
+    },
+    'regic_saude_alta_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'Geocodigo'
+    },
+    'regic_saude_baixamedia_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'Geocodigo'
+    },
+    'regic_saude_baixamediaalta_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'DESTINO'
+    },
+    'regic_ext_saude_regioes_alta_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'CodReg'
+    },
+    'regic_ext_saude_regioes_baixamedia_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'cod_Reg'
+    },
+    'regic_ext_saude_alta_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'Geocodigo'
+    },
+    'regic_ext_saude_baixamedia_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'Geocodigo'
+    },
+    'regic_ext_saude_baixamediaalta_complexidade': {
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'identifier': 'DESTINO'
+    },
     'municipio': {
         'levels': [
             'regic_saude_regioes_alta_complexidade', 'regic_saude_regioes_baixamedia_complexidade',
@@ -110,7 +150,7 @@ resolutions = {
             'regic_saude_alta_complexidade', 'regic_saude_baixamedia_complexidade', 'regic_saude_baixamediaalta_complexidade',
             'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade'
         ],
-        'identifier': ''
+        'identifier': 'codarea'
     },
     'distrito': {
         'levels': [
@@ -120,7 +160,7 @@ resolutions = {
             'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade',
             'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'
         ],
-        'identifier': ''
+        'identifier': 'CD_GEOCODD'
     },
     'subdistrito': {
         'levels': [
@@ -130,21 +170,19 @@ resolutions = {
             'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade',
             'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio','distrito'
         ],
-        'identifier': ''
-    },
-    'setor_censitario': {
-        'levels': [
-            'regic_saude_regioes_alta_complexidade', 'regic_saude_regioes_baixamedia_complexidade',
-            'regic_ext_saude_regioes_alta_complexidade', 'regic_ext_saude_regioes_baixamedia_complexidade',
-            'regic_saude_alta_complexidade', 'regic_saude_baixamedia_complexidade', 'regic_saude_baixamediaalta_complexidade',
-            'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade',
-            'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio', 'distrito','subdistrito'
-        ],
-        'identifier': '',
-        'filters': [
-            'aglomerados_subnormais',
-        ]
-    }
+        'identifier': 'CD_GEOCODS'
+    }#,
+    # 'setor_censitario': {
+    #     'levels': [
+    #         'regic_saude_regioes_alta_complexidade', 'regic_saude_regioes_baixamedia_complexidade',
+    #         'regic_ext_saude_regioes_alta_complexidade', 'regic_ext_saude_regioes_baixamedia_complexidade',
+    #         'regic_saude_alta_complexidade', 'regic_saude_baixamedia_complexidade', 'regic_saude_baixamediaalta_complexidade',
+    #         'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade',
+    #         'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio', 'distrito','subdistrito'
+    #     ],
+    #     'identifier': 'CD_GEOCODDI',
+    #     'filters': ['aglomerados_subnormais']
+    # }
 }
 
 # Correlation columns indicating the belongin of analysis units
@@ -158,14 +196,13 @@ cluster_cols: {
     'regic_ext_saude_regioes_baixamedia_complexidade': 'cd_media_baixa_ext',
     'regic_ext_saude_alta_complexidade': 'cd_alta_ext',
     'regic_ext_saude_baixamedia_complexidade': 'cd_media_baixa_ext',
-    'regic_ext_saude_baixamediaalta_complexidade': 'cd_media_baixa_ext'
+    'regic_ext_saude_baixamediaalta_complexidade': 'cd_media_baixa_ext',
+    'setor_censitario': 'subdistrito'
 } # Ommited keys are considered to have key == value in the semantics of this script
 
 # Load the levels correlations as a pandas dataframe
 def load_places():
     # Granularity = setor_censitario
-    # TODO 2 - Start from setor_censitario, then join with subdistritos (already loaded in the code below)
-    # TODO 3 - Add filters as columns, such as aglomerados subnormais
     print("Starting conversion to geojson...", end='\r', flush=True)
 
     with open("analysis_units_subdistritos.json", "r") as f_au:
@@ -197,7 +234,7 @@ def load_places():
         clusters_ext.columns = ['municipio', 'cd_alta_ext', 'cd_baixa_media_ext', 'cd_influencia_ext']
         clusters_ext = clusters_ext.drop_duplicates()
         df = df.join(clusters_ext.set_index('municipio'), on="municipio")
-    # TODO 4 - Check why codes are being converted to float
+    # TODO 1 - Check why codes are being converted to float
     return df
 
 # Saving partition
@@ -213,12 +250,11 @@ def make_partition(geo_br, f_name, group, identifier, cluster_identifier):
     # with open(f_name, "w") as geojson:
     #     json.dump({"type": "FeatureCollection", "features": feats}, geojson)
     with open(f_name, "w") as geojson:
-        json.dump(
-            {"type": "FeatureCollection", 
-             "features": [feature for feature in geo_br.get('features') if feature.get(identifier) in list(group[cluster_identifier].astype(str).unique())]
-            },
-            geojson
-        )
+        if identifier == 'CD_GEOCODDI': # Case setor_censitario, there's no listing beforehand - it assumes from subdistrito
+            feats = [feature for feature in geo_br.get('features') if feature.get(identifier)[:11] in list(group[cluster_identifier].astype(str).unique())]
+        else:
+            feats = [feature for feature in geo_br.get('features') if feature.get(identifier) in list(group[cluster_identifier].astype(str).unique())]
+        json.dump({"type": "FeatureCollection", "features": feats}, geojson)
     total_done = total_done + 1
     print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
 
@@ -263,6 +299,10 @@ def convert_as_is(dataset, skip_existing):
                             local_buffer = read_geometries_from_shapefile(f"../../shapes/{dataset.get('origin')}/{dataset.get('file')}.shp")
                             json.dump({"type": "FeatureCollection", "features": buffer}, geojson)
                             buffer.extend(local_buffer)
+                            # Teste
+                            if au_id == '11':
+                                print(au_id)
+                                print(local_buffer)
                     total_done = total_done + 1
                     print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
         # Brazil
@@ -324,6 +364,7 @@ for res_id, res in resolutions.items():
 with multiprocess.Pool(processes=8) as pool:
     pool_combinations.starmap(generate, pool_args)
 
+# TODO 2 - Create mechanism to filter a combination of level x resolution (check aglomerados subnormais)
 # pool_args = generate_regic(skip_existing)
 # with multiprocess.Pool(processes=8) as pool:
 #     pool.starmap(convert_shp_regic, pool_args)

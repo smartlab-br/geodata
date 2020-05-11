@@ -90,6 +90,8 @@ for key, value in enumerate(resolution):
             download_file(key, value, resolution[key:], au.get("id"), skip_existing)
 
 print(f"Starting shapefiles download...", end="\r", flush=True)
+total_files = total_files + 4 * 3 * 27
+
 base_dest = '../../shapes/territorio'
 with open('analysis_units_uf.json') as json_file:
     uf_sigla2cod = {uf.get('sigla').lower():uf.get('id') for uf in json.load(json_file)}
