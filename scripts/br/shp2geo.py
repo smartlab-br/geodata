@@ -186,7 +186,7 @@ resolutions = {
 }
 
 # Correlation columns indicating the belongin of analysis units
-cluster_cols: {
+cluster_cols = {
     'regic_saude_regioes_alta_complexidade': 'cd_alta',
     'regic_saude_regioes_baixamedia_complexidade': 'cd_media_baixa',
     'regic_saude_alta_complexidade': 'cd_alta',
@@ -273,12 +273,12 @@ def read_geometries_from_shapefile(origin):
 def convert_as_is(dataset, skip_existing):
     global total_files, total_done
     
-    total_files = total_files + 1
     print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
     # read the shapefile
 
+    au_type = dataset.get('au_type')
     # write the GeoJSON files
-    if 'regic' in dataset.get('au_type'): # Already in BR level
+    if 'regic' in au_type: # Already in BR level
         # Brazil
         if not (skip_existing and os.path.isfile(f'../../geojson/br/{au_type}_q0.json')):
             with open(f'../../geojson/br/{au_type}_q0.json', "w") as geojson:
@@ -323,19 +323,19 @@ def generate(res_id, level, places, identifier, skip_existing):
     elif os.path.isfile(f"../../geojson/br/{res_id}_q0.json"):
         f_name = f"../../geojson/br/{res_id}_q0.json"
     else:
-        continue
+        return
     with open(f_name, 'r') as json_file:
         geo = json.load(json_file)
     
     col = cluster_cols.get(level, level)
-    grouped = palces.groupby(col)
-    for au_id, cluster in grouped:
-        for id_part, part in grouped:
-            f_name = f'../../geojson/br/{level}/{res_id}/{id_part}_q0.json'
-            if skip_existing and os.path.isfile(f_name):   
-                continue
-            # Filter geometries and save
-            make_partition(geo, f_name, part, identifier, col)
+    grouped = places.groupby(col)
+    total_files = total_files + len(grouped)
+    for id_part, part in grouped:
+        f_name = f'../../geojson/br/{level}/{res_id}/{id_part}_q0.json'
+        if skip_existing and os.path.isfile(f_name):   
+            continue
+        # Filter geometries and save
+        make_partition(geo, f_name, part, identifier, col)
     return
 
 print("Starting conversion to geojson...", end='\r', flush=True)
@@ -352,17 +352,18 @@ places = load_places()
 pool_as_is = [] # Pool to address shp conversion to basic geojson
 for dataset in datasets:
     pool_as_is.append((dataset, skip_existing))
+total_files = total_files + len(pool_as_is) + 1
 with multiprocess.Pool(processes=8) as pool:
-    pool.starmap(convert_as_is, pool_args)
+    pool.starmap(convert_as_is, pool_as_is)
 
 # Generate combinations levels x geometries
 pool_combinations = [] # Pool to address combination of levels and resolutions of geographies
 for res_id, res in resolutions.items():
     # Iterate over levels to filter the resolution geometries
-    for level in res.levels:
+    for level in res.get('levels'):
         pool_combinations.append((res_id, level, places, res.get('identifier'), skip_existing))
 with multiprocess.Pool(processes=8) as pool:
-    pool_combinations.starmap(generate, pool_args)
+    pool.starmap(generate, pool_combinations)
 
 # TODO 2 - Create mechanism to filter a combination of level x resolution (check aglomerados subnormais)
 # pool_args = generate_regic(skip_existing)
