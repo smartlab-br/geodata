@@ -171,32 +171,32 @@ resolutions = {
             'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio','distrito'
         ],
         'identifier': 'CD_GEOCODS'
-    }#,
-    # 'setor_censitario': {
-    #     'levels': [
-    #         'regic_saude_regioes_alta_complexidade', 'regic_saude_regioes_baixamedia_complexidade',
-    #         'regic_ext_saude_regioes_alta_complexidade', 'regic_ext_saude_regioes_baixamedia_complexidade',
-    #         'regic_saude_alta_complexidade', 'regic_saude_baixamedia_complexidade', 'regic_saude_baixamediaalta_complexidade',
-    #         'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade',
-    #         'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio', 'distrito','subdistrito'
-    #     ],
-    #     'identifier': 'CD_GEOCODDI',
-    #     'filters': ['aglomerados_subnormais']
-    # }
+    },
+    'setor_censitario': {
+        'levels': [
+            'regic_saude_regioes_alta_complexidade', 'regic_saude_regioes_baixamedia_complexidade',
+            'regic_ext_saude_regioes_alta_complexidade', 'regic_ext_saude_regioes_baixamedia_complexidade',
+            'regic_saude_alta_complexidade', 'regic_saude_baixamedia_complexidade', 'regic_saude_baixamediaalta_complexidade',
+            'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade',
+            'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio', 'distrito','subdistrito'
+        ],
+        'identifier': 'CD_GEOCODDI',
+        'filters': ['aglomerados_subnormais']
+    }
 }
 
 # Correlation columns indicating the belongin of analysis units
 cluster_cols = {
     'regic_saude_regioes_alta_complexidade': 'cd_alta',
-    'regic_saude_regioes_baixamedia_complexidade': 'cd_media_baixa',
+    'regic_saude_regioes_baixamedia_complexidade': 'cd_baixa_media',
     'regic_saude_alta_complexidade': 'cd_alta',
-    'regic_saude_baixamedia_complexidade': 'cd_media_baixa',
-    'regic_saude_baixamediaalta_complexidade': 'cd_media_baixa',
+    'regic_saude_baixamedia_complexidade': 'cd_baixa_media',
+    'regic_saude_baixamediaalta_complexidade': 'cd_baixa_media',
     'regic_ext_saude_regioes_alta_complexidade': 'cd_alta_ext',
-    'regic_ext_saude_regioes_baixamedia_complexidade': 'cd_media_baixa_ext',
+    'regic_ext_saude_regioes_baixamedia_complexidade': 'cd_baixa_media_ext',
     'regic_ext_saude_alta_complexidade': 'cd_alta_ext',
-    'regic_ext_saude_baixamedia_complexidade': 'cd_media_baixa_ext',
-    'regic_ext_saude_baixamediaalta_complexidade': 'cd_media_baixa_ext',
+    'regic_ext_saude_baixamedia_complexidade': 'cd_baixa_media_ext',
+    'regic_ext_saude_baixamediaalta_complexidade': 'cd_baixa_media_ext',
     'setor_censitario': 'subdistrito'
 } # Ommited keys are considered to have key == value in the semantics of this script
 
@@ -225,6 +225,7 @@ def load_places():
     clusters.columns = ['municipio', 'nm_mun', 'pop18', 'cd_baixa_media', 'nm_baixa_media', 'cd_alta', 'nm_alta']
 
     df = df_subdistrito.join(clusters.set_index('municipio'), on="municipio")
+    df[['cd_baixa_media', 'cd_alta']] = df[['cd_baixa_media', 'cd_alta']].fillna(0.0).astype(int)
 
     # Evaluate clusters with all municipalities, including those absent from IBGE's REGIC table
     if os.path.isfile('REGIC_melt.csv'):
@@ -234,7 +235,8 @@ def load_places():
         clusters_ext.columns = ['municipio', 'cd_alta_ext', 'cd_baixa_media_ext', 'cd_influencia_ext']
         clusters_ext = clusters_ext.drop_duplicates()
         df = df.join(clusters_ext.set_index('municipio'), on="municipio")
-    # TODO 1 - Check why codes are being converted to float
+        df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']] = df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']].fillna(0.0).astype(int)
+
     return df
 
 # Saving partition
@@ -260,7 +262,7 @@ def make_partition(geo_br, f_name, group, identifier, cluster_identifier):
 
 def read_geometries_from_shapefile(origin):
     reader = shapefile.Reader(origin)
-    #reader.encoding="iso-8859-1"
+    reader.encoding="iso-8859-1"
     fields = reader.fields[1:]
     field_names = [field[0] for field in fields]
     buffer = []
@@ -289,20 +291,17 @@ def convert_as_is(dataset, skip_existing):
     else: # All the rest is in UF level - generate as it is and then join the features to a single, BR, geojson
         buffer = []
         # UF (iterate)
-        for root, dirs, files in os.walk(f"../../geojson/br/uf/{au_type}"):
+        for root, dirs, files in os.walk(f"../../shapes/{dataset.get('origin')}"):
             # path = root.replace("../../geojson", "")
             for file in files:
                 if file.endswith(".shp"):
                     au_id = file.replace('.shp', '')            
+                    local_buffer = read_geometries_from_shapefile(f"../../shapes/{dataset.get('origin')}/{au_id}.shp")
+                    buffer.extend(local_buffer)
                     if not (skip_existing and os.path.isfile(f'../../geojson/br/uf/{au_type}/{au_id}_q0.json')):
+                        os.makedirs(os.path.dirname(f'../../geojson/br/uf/{au_type}/{au_id}_q0.json'), exist_ok=True)
                         with open(f'../../geojson/br/uf/{au_type}/{au_id}_q0.json', "w") as geojson:
-                            local_buffer = read_geometries_from_shapefile(f"../../shapes/{dataset.get('origin')}/{dataset.get('file')}.shp")
-                            json.dump({"type": "FeatureCollection", "features": buffer}, geojson)
-                            buffer.extend(local_buffer)
-                            # Teste
-                            if au_id == '11':
-                                print(au_id)
-                                print(local_buffer)
+                            json.dump({"type": "FeatureCollection", "features": local_buffer}, geojson)
                     total_done = total_done + 1
                     print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
         # Brazil
@@ -355,6 +354,7 @@ for dataset in datasets:
 total_files = total_files + len(pool_as_is) + 1
 with multiprocess.Pool(processes=8) as pool:
     pool.starmap(convert_as_is, pool_as_is)
+    pool.join()
 
 # Generate combinations levels x geometries
 pool_combinations = [] # Pool to address combination of levels and resolutions of geographies

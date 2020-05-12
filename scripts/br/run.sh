@@ -1,10 +1,20 @@
 #!/bin/bash
 # SETUP
 # The first parameter is a flag whether the already existing files should be skipped
-SKIP_EXISTING=$1 # True/False
+# The second parameter is a flag indicating if files should be downloaded
+if [ -n $1 ]
+then
+    SKIP_EXISTING=$1 # True/False
+else
+    SKIP_EXISTING=True # True/False
+fi
+
 
 # STEP 1 - Import geojson files from IBGE.
-python3 geoimporter.py "$SKIP_EXISTING"
+if [ "$2" = "False" ]
+then
+    python3 geoimporter.py "$SKIP_EXISTING"
+fi
 
 # STEP 2 - Convert shapefiles in the shapes directory into geojson.
 # WARNING - You should validate and fix the crossing vectors, otherwise

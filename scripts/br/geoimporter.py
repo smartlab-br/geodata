@@ -134,7 +134,7 @@ for (dirname, subdirs, files) in ftp.walk('.'):
         if '.zip' in zip_file_name and 'municipios' not in zip_file_name:
             file_name = zip_file_name.replace(".zip","")
             unit = str(uf_sigla2cod.get(file_name.split('_')[0]))
-            resolution = "_".join(file_name.split('_')[1:])
+            resolution = "".join("_".join(file_name.split('_')[1:]).split())
 
             # Build target directory
             dest = f"{base_dest}/uf/{resolution}"
