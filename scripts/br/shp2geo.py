@@ -104,43 +104,43 @@ datasets = [
 # Each resolution must be clustered into certain (greater) levels of topology
 resolutions = {
     'regic_saude_regioes_alta_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'CodReg'
     },
     'regic_saude_regioes_baixamedia_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'cod_Reg'
     },
     'regic_saude_alta_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'Geocodigo'
     },
     'regic_saude_baixamedia_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'Geocodigo'
     },
     'regic_saude_baixamediaalta_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'DESTINO'
     },
     'regic_ext_saude_regioes_alta_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'CodReg'
     },
     'regic_ext_saude_regioes_baixamedia_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'cod_Reg'
     },
     'regic_ext_saude_alta_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'Geocodigo'
     },
     'regic_ext_saude_baixamedia_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'Geocodigo'
     },
     'regic_ext_saude_baixamediaalta_complexidade': {
-        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio'],
+        'levels': ['macrorregiao', 'mesorregiao', 'microrregiao', 'uf'],
         'identifier': 'DESTINO'
     },
     'municipio': {
@@ -216,8 +216,8 @@ def load_places():
         'mesorregiao': [sd.get('distrito',{}).get('municipio', {}).get('microrregiao', {}).get('mesorregiao', {}).get('id') for sd in list_subdistrito]
     })
     df_subdistrito = df_subdistrito.assign(
-        uf = df_subdistrito['municipio'].astype(str).str.slice(0,2),
-        macrorregiao = df_subdistrito['municipio'].astype(str).str.slice(0,1)
+        uf = df_subdistrito['subdistrito'].astype(str).str.slice(0,2),
+        macrorregiao = df_subdistrito['subdistrito'].astype(str).str.slice(0,1)
     )
 
     # Evaluate REGIC data as provided by IBGE
@@ -251,12 +251,16 @@ def make_partition(geo_br, f_name, group, identifier, cluster_identifier):
     #         feats.append(rewind(feature))
     # with open(f_name, "w") as geojson:
     #     json.dump({"type": "FeatureCollection", "features": feats}, geojson)
-    with open(f_name, "w") as geojson:
-        if identifier == 'CD_GEOCODDI': # Case setor_censitario, there's no listing beforehand - it assumes from subdistrito
-            feats = [feature for feature in geo_br.get('features') if feature.get(identifier)[:11] in list(group[cluster_identifier].astype(str).unique())]
-        else:
-            feats = [feature for feature in geo_br.get('features') if feature.get(identifier) in list(group[cluster_identifier].astype(str).unique())]
-        json.dump({"type": "FeatureCollection", "features": feats}, geojson)
+    if identifier == 'CD_GEOCODDI': # Falls back to subdistrito, for there's no listing beforehand - it assumes from subdistrito
+        identifier = 'CD_GEOCODDS'
+    # if identifier in ['CD_GEOCODD', 'CD_GEOCODDS', 'CD_GEOCODDI']: 
+    #     feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique())]
+    # else:
+    #     feats = [feature for feature in geo_br.get('features') if feature.get(identifier) in list(group[cluster_identifier].astype(str).unique())]
+    feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique())]
+    if len(feats) > 0:
+        with open(f_name, "w") as geojson:
+            json.dump({"type": "FeatureCollection", "features": feats}, geojson)
     total_done = total_done + 1
     print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
 
@@ -327,6 +331,7 @@ def generate(res_id, level, places, identifier, skip_existing):
         geo = json.load(json_file)
     
     col = cluster_cols.get(level, level)
+    col_res = cluster_cols.get(res_id, res_id)
     grouped = places.groupby(col)
     total_files = total_files + len(grouped)
     for id_part, part in grouped:
@@ -334,7 +339,7 @@ def generate(res_id, level, places, identifier, skip_existing):
         if skip_existing and os.path.isfile(f_name):   
             continue
         # Filter geometries and save
-        make_partition(geo, f_name, part, identifier, col)
+        make_partition(geo, f_name, part, identifier, col_res)
     return
 
 print("Starting conversion to geojson...", end='\r', flush=True)
@@ -354,7 +359,6 @@ for dataset in datasets:
 total_files = total_files + len(pool_as_is) + 1
 with multiprocess.Pool(processes=8) as pool:
     pool.starmap(convert_as_is, pool_as_is)
-    pool.join()
 
 # Generate combinations levels x geometries
 pool_combinations = [] # Pool to address combination of levels and resolutions of geographies

@@ -8,21 +8,22 @@ import datetime
 import multiprocess
 import logging
 import logging.config
+# from shapely.geos import TopologyException
 
 def setup_logger(name, log_file, level=logging.INFO):
     """To setup as many loggers as you want"""
-
-    handler = logging.FileHandler(log_file)        
-    # handler.setFormatter(formatter)
+    handler = logging.FileHandler(log_file)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    handler.setFormatter(formatter)
 
     logger = logging.getLogger(name)
-    logger.setLevel(level)
     logger.addHandler(handler)
-
+    logger.setLevel(level)
+    
     return logger
 
-topo_logger = setup_logger('topo_logger', 'log/log_error_topology.log')
-logger = setup_logger('general_logger', 'log/log_error.log')
+topo_logger = setup_logger('topo_logger', 'log/log_error_topology.log', logging.WARNING)
+logger = setup_logger('general_logger', 'log/log_error.log', logging.ERROR)
 
 def convert(origin, dest, quality_levels, skip_existing):
     global total_files, total_done, topo_logger, logger
