@@ -67,12 +67,16 @@ def download_file(key, value, resolution, id_au, skip_existing):
 
 def download_and_unzip(dirname, zip_file_name, dest, unit=None):
     global total_files, total_done
-    # Download the .zip
-    ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
-    ftp.current_directory = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"
-    f = ftp.file_proxy(f"{dirname}/{zip_file_name}")
-    fp = BytesIO()
-    f.download(fp)
+    # Download the .zip only if not exists in dir
+    f_name = f"{dest}/{zip_file_name}"
+    if os.path.isfile(f_name):
+        fp = open(f_name, "rb")
+    else:
+        ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
+        ftp.current_directory = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"
+        f = ftp.file_proxy(f"{dirname}/{zip_file_name}")
+        fp = BytesIO()
+        f.download(fp)
 
     # Unzip it, renaming the target
     zip_file = zipfile.ZipFile(fp)
