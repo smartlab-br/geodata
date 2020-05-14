@@ -77,6 +77,8 @@ def download_and_unzip(dirname, zip_file_name, dest, unit=None):
         f = ftp.file_proxy(f"{dirname}/{zip_file_name}")
         fp = BytesIO()
         f.download(fp)
+        with open(f_name, "wb") as zip_file_bin:
+            zip_file_bin.write(fp)
 
     # Unzip it, renaming the target
     zip_file = zipfile.ZipFile(fp)
