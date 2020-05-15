@@ -241,9 +241,9 @@ resolutions = {
             'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio', 'distrito','subdistrito'
         ],
         'identifier': 'CD_GEOCODDI',
-        'filters': [
-            {'name': 'aglomerados_subnormais', 'col_res': 'setor_censitario', 'col_filter': 'aglomerados_subnormais'}
-        ]
+        # 'filters': [
+        #     {'name': 'aglomerados_subnormais', 'col_res': 'setor_censitario', 'col_filter': 'aglomerados_subnormais'}
+        # ]
     }
 }
 
@@ -423,7 +423,7 @@ def generate(res_id, level, places, identifier, skip_existing, fltr=None):
         if skip_existing and os.path.isfile(f_name):   
             continue
         # Filter geometries and save
-        make_partition(geo, f_name, part, identifier, col_res, fltr)
+        make_partition(geo, f_name, part, identifier, col_res)
     return
 
 print("Starting conversion to geojson...", end='\r', flush=True)
