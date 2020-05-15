@@ -70,6 +70,7 @@ def download_and_unzip(dirname, zip_file_name, dest, unit=None):
     # Download the .zip only if not exists in dir
     f_name = f"{dest}/{zip_file_name}"
     if os.path.isfile(f_name):
+        print(f"Skipping {f_name} download (ZIP already exists)")
         fp = open(f_name, "rb")
     else:
         ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")

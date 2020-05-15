@@ -4,6 +4,7 @@ import multiprocess
 import os
 import sys
 import pandas as pd
+import requests
 from geojson_rewind import rewind
 
 # Datasets to be converted to geojson
@@ -266,26 +267,37 @@ def load_places():
     # Granularity = setor_censitario
     print("Starting conversion to geojson...", end='\r', flush=True)
 
-    with open("analysis_units_subdistritos.json", "r") as f_au:
-        list_subdistrito = json.load(f_au)
-        # f_au.close() # Just to make sure it releases memory
-    df_subdistrito = pd.DataFrame.from_dict({
-        'subdistrito': [sd.get('id') for sd in list_subdistrito],
-        'distrito': [sd.get('distrito',{}).get('id') for sd in list_subdistrito],
-        'municipio': [sd.get('distrito',{}).get('municipio', {}).get('id') for sd in list_subdistrito],
-        'microrregiao': [sd.get('distrito',{}).get('municipio', {}).get('microrregiao', {}).get('id') for sd in list_subdistrito],
-        'mesorregiao': [sd.get('distrito',{}).get('municipio', {}).get('microrregiao', {}).get('mesorregiao', {}).get('id') for sd in list_subdistrito]
+    list_municipio = requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/municipios').json()
+    df = pd.DataFrame.from_dict({
+        'municipio': [au.get('id') for au in list_municipio],
+        'microrregiao': [au.get('microrregiao',{}).get('id') for au in list_municipio],
+        'mesorregiao': [au.get('microrregiao',{}).get('mesorregiao',{}).get('id') for au in list_municipio]
     })
-    df_subdistrito = df_subdistrito.assign(
-        uf = df_subdistrito['subdistrito'].astype(str).str.slice(0,2),
-        macrorregiao = df_subdistrito['subdistrito'].astype(str).str.slice(0,1)
+    df = df.assign(
+        uf = df['municipio'].astype(str).str.slice(0,2),
+        macrorregiao = df['municipio'].astype(str).str.slice(0,1)
     )
+
+    # Distritos e subdistritos não apresentam cardinalidade compatível com os municípios (então há lacunas)
+    list_temp = requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/distritos').json()
+    df_temp = pd.DataFrame.from_dict({
+        'distrito': [au.get('id') for au in list_temp],
+        'municipio': [au.get('municipio',{}).get('id') for au in list_temp]
+    })
+    df = df.merge(df_temp, on="municipio", how="outer")
+
+    list_temp = requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/subdistritos').json()
+    df_temp = pd.DataFrame.from_dict({
+        'subdistrito': [au.get('id') for au in list_temp],
+        'distrito': [au.get('distrito',{}).get('id') for au in list_temp]
+    })
+    df = df.merge(df_temp, on="distrito", how="outer")
 
     # Evaluate REGIC data as provided by IBGE
     clusters = pd.read_excel('REGIC2018_Regionalizacao_Saude_Primeira_Aproximacao.xlsx')
     clusters.columns = ['municipio', 'nm_mun', 'pop18', 'cd_baixa_media', 'nm_baixa_media', 'cd_alta', 'nm_alta']
 
-    df = df_subdistrito.join(clusters.set_index('municipio'), on="municipio")
+    df = df.merge(clusters.set_index('municipio'), on="municipio", how="outer")
     df[['cd_baixa_media', 'cd_alta']] = df[['cd_baixa_media', 'cd_alta']].fillna(0.0).astype(int)
 
     # Evaluate clusters with all municipalities, including those absent from IBGE's REGIC table
@@ -295,9 +307,8 @@ def load_places():
         clusters_ext = clusters_ext.pivot_table(index=['cd_mun_origem'], columns='tp_rel', values='cd_mun_dest', fill_value=0).reset_index()
         clusters_ext.columns = ['municipio', 'cd_alta_ext', 'cd_baixa_media_ext', 'cd_influencia_ext']
         clusters_ext = clusters_ext.drop_duplicates()
-        df = df.join(clusters_ext.set_index('municipio'), on="municipio")
+        df = df.merge(clusters_ext.set_index('municipio'), on="municipio", how="outer")
         df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']] = df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']].fillna(0.0).astype(int)
-
     return df
 
 # Saving partition
@@ -318,7 +329,13 @@ def make_partition(geo_br, f_name, group, identifier, cluster_identifier):
     #     feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique())]
     # else:
     #     feats = [feature for feature in geo_br.get('features') if feature.get(identifier) in list(group[cluster_identifier].astype(str).unique())]
-    feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique())]
+    ## Adding unique ID attribute
+    feats = []
+    for feature in geo_br.get('features'):
+        if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique()):
+            feature.get('properites')['smartlab_geo_id'] = feature.get('properties').get(identifier)
+            feats.append(feature)
+    # feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique())]
     if len(feats) > 0:
         with open(f_name, "w") as geojson:
             json.dump({"type": "FeatureCollection", "features": feats}, geojson)
@@ -402,7 +419,7 @@ def generate(res_id, level, places, identifier, skip_existing, fltr=None):
         if fltr is None:
             f_name = f'../../geojson/br/{level}/{res_id}/{id_part}_q0.json'
         else:
-            f_name = f'../../geojson/br/{level}/{res_id}/{fltr.get('name')}/{id_part}_q0.json'
+            f_name = f"../../geojson/br/{level}/{res_id}/{fltr.get('name')}/{id_part}_q0.json"
         if skip_existing and os.path.isfile(f_name):   
             continue
         # Filter geometries and save
