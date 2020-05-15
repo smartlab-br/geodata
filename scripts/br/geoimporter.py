@@ -131,8 +131,7 @@ print(f"Starting shapefiles download...", end="\r", flush=True)
 total_files = total_files + 4 * 3 * 27
 
 base_dest = '../../shapes/territorio'
-with open('analysis_units_uf.json') as json_file:
-    uf_sigla2cod = {uf.get('sigla').lower():uf.get('id') for uf in json.load(json_file)}
+uf_sigla2cod = {uf.get('sigla').lower():uf.get('id') for uf in requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados').json()}
 
 # Download and unzip topologies from IBGE FTP service
 ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")

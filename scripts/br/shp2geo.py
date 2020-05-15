@@ -126,7 +126,7 @@ datasets = [
     {
         "origin": "territorio/uf/setores_censitarios", 
         "au_type": "setor_censitario",
-        "identifier": "CD_GEOCODDI",
+        "identifier": "CD_GEOCODI",
         "cluster_identifier": "setor_censitario"
     }
 ]
@@ -210,7 +210,7 @@ resolutions = {
             'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade',
             'microrregiao', 'mesorregiao', 'uf'
         ],
-        'identifier': 'CD_GEOCODMU'
+        'identifier': 'CD_GEOCMU'
     },
     'distrito': {
         'levels': [
@@ -240,7 +240,7 @@ resolutions = {
             'regic_ext_saude_alta_complexidade', 'regic_ext_saude_baixamedia_complexidade', 'regic_ext_saude_baixamediaalta_complexidade',
             'macrorregiao', 'mesorregiao', 'microrregiao', 'uf', 'municipio', 'distrito','subdistrito'
         ],
-        'identifier': 'CD_GEOCODDI',
+        'identifier': 'CD_GEOCODI',
         # 'filters': [
         #     {'name': 'aglomerados_subnormais', 'col_res': 'setor_censitario', 'col_filter': 'aglomerados_subnormais'}
         # ]
@@ -298,7 +298,7 @@ def load_places():
     clusters.columns = ['municipio', 'nm_mun', 'pop18', 'cd_baixa_media', 'nm_baixa_media', 'cd_alta', 'nm_alta']
 
     df = df.merge(clusters.set_index('municipio'), on="municipio", how="outer")
-    df[['cd_baixa_media', 'cd_alta']] = df[['cd_baixa_media', 'cd_alta']].fillna(0.0).astype(int)
+    df[['cd_baixa_media', 'cd_alta', 'distrito', 'subdistrito']] = df[['cd_baixa_media', 'cd_alta', 'distrito', 'subdistrito']].fillna(0.0).astype(int)
 
     # Evaluate clusters with all municipalities, including those absent from IBGE's REGIC table
     if os.path.isfile('REGIC_melt.csv'):
@@ -323,9 +323,9 @@ def make_partition(geo_br, f_name, group, identifier, cluster_identifier):
     #         feats.append(rewind(feature))
     # with open(f_name, "w") as geojson:
     #     json.dump({"type": "FeatureCollection", "features": feats}, geojson)
-    if identifier == 'CD_GEOCODDI': # Falls back to subdistrito, for there's no listing beforehand - it assumes from subdistrito
-        identifier = 'CD_GEOCODDS'
-    # if identifier in ['CD_GEOCODD', 'CD_GEOCODDS', 'CD_GEOCODDI']: 
+    if identifier == 'CD_GEOCODI': # Falls back to subdistrito, for there's no listing beforehand - it assumes from subdistrito
+        identifier = 'CD_GEOCODS'
+    # if identifier in ['CD_GEOCODD', 'CD_GEOCODS', 'CD_GEOCODI']: 
     #     feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique())]
     # else:
     #     feats = [feature for feature in geo_br.get('features') if feature.get(identifier) in list(group[cluster_identifier].astype(str).unique())]
@@ -339,6 +339,13 @@ def make_partition(geo_br, f_name, group, identifier, cluster_identifier):
     if len(feats) > 0:
         with open(f_name, "w") as geojson:
             json.dump({"type": "FeatureCollection", "features": feats}, geojson)
+    else:
+        print(f"\n====================\n\
+            {f_name}\n\
+            {identifier}\n\
+            {list(group[cluster_identifier].astype(str).unique())}\n\
+            {cluster_identifier}\n\
+            =================")
     total_done = total_done + 1
     print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
 
