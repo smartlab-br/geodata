@@ -4,6 +4,7 @@ import multiprocess
 import os
 import sys
 import pandas as pd
+import numpy as np
 import requests
 from geojson_rewind import rewind
 
@@ -298,7 +299,7 @@ def load_places():
     clusters.columns = ['municipio', 'nm_mun', 'pop18', 'cd_baixa_media', 'nm_baixa_media', 'cd_alta', 'nm_alta']
 
     df = df.merge(clusters.set_index('municipio'), on="municipio", how="outer")
-    df[['cd_baixa_media', 'cd_alta', 'distrito', 'subdistrito']] = df[['cd_baixa_media', 'cd_alta', 'distrito', 'subdistrito']].fillna(0.0).astype(int)
+    df[['cd_baixa_media', 'cd_alta', 'distrito', 'subdistrito']] = df[['cd_baixa_media', 'cd_alta', 'distrito', 'subdistrito']].fillna(0.0).astype(str)
 
     # Evaluate clusters with all municipalities, including those absent from IBGE's REGIC table
     if os.path.isfile('REGIC_melt.csv'):
@@ -308,44 +309,27 @@ def load_places():
         clusters_ext.columns = ['municipio', 'cd_alta_ext', 'cd_baixa_media_ext', 'cd_influencia_ext']
         clusters_ext = clusters_ext.drop_duplicates()
         df = df.merge(clusters_ext.set_index('municipio'), on="municipio", how="outer")
-        df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']] = df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']].fillna(0.0).astype(int)
+        df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']] = df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']].fillna(0.0).astype(str)
+
+    df['subdistrito'] = np.where(df.subdistrito == '0.0', df.distrito + '00', df.subdistrito.replace({'\.0':''}, regex=True))
+    df[['cd_baixa_media', 'cd_alta', 'distrito', 'cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']] = df[['cd_baixa_media', 'cd_alta', 'distrito', 'cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']].replace({'\.0':''}, regex=True)
+
     return df
 
 # Saving partition
 def make_partition(geo_br, f_name, group, identifier, cluster_identifier):
     global total_files, total_done
     os.makedirs(os.path.dirname(f_name), exist_ok=True)
-    # TO_DELETE - Previous code, with rewind an conversion from tuple to list
-    # for feature in buffer:
-    #     if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique()):
-    #         if isinstance(feature.get('geometry').get('coordinates'), tuple):
-    #             feature['geometry']['coordinates'] = list(feature.get('geometry').get('coordinates'))
-    #         feats.append(rewind(feature))
-    # with open(f_name, "w") as geojson:
-    #     json.dump({"type": "FeatureCollection", "features": feats}, geojson)
+
+    local_identifier = identifier
     if identifier == 'CD_GEOCODI': # Falls back to subdistrito, for there's no listing beforehand - it assumes from subdistrito
-        identifier = 'CD_GEOCODS'
-    # if identifier in ['CD_GEOCODD', 'CD_GEOCODS', 'CD_GEOCODI']: 
-    #     feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique())]
-    # else:
-    #     feats = [feature for feature in geo_br.get('features') if feature.get(identifier) in list(group[cluster_identifier].astype(str).unique())]
-    ## Adding unique ID attribute
-    feats = []
-    for feature in geo_br.get('features'):
-        if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique()):
-            feature.get('properites')['smartlab_geo_id'] = feature.get('properties').get(identifier)
-            feats.append(feature)
-    # feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in list(group[cluster_identifier].astype(str).unique())]
-    if len(feats) > 0:
-        with open(f_name, "w") as geojson:
-            json.dump({"type": "FeatureCollection", "features": feats}, geojson)
-    else:
-        print(f"\n====================\n\
-            {f_name}\n\
-            {identifier}\n\
-            {list(group[cluster_identifier].astype(str).unique())}\n\
-            {cluster_identifier}\n\
-            =================")
+        local_identifier = 'CD_GEOCODS'
+    
+    list_id = list(group[cluster_identifier].astype(str).unique())
+
+    feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(local_identifier) in list_id]
+    with open(f_name, "w") as geojson:
+        json.dump({"type": "FeatureCollection", "features": feats}, geojson)
     total_done = total_done + 1
     print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
 
@@ -374,6 +358,8 @@ def convert_as_is(dataset, skip_existing):
         if not (skip_existing and os.path.isfile(f'../../geojson/br/{au_type}_q0.json')):
             with open(f'../../geojson/br/{au_type}_q0.json', "w") as geojson:
                 buffer = read_geometries_from_shapefile(f"../../shapes/{dataset.get('origin')}/{dataset.get('file')}.shp")
+                for feature in buffer:
+                    feature.get('properties')['smartlab_geo_id'] = feature.get('properties').get(dataset.get('identifier'))
                 json.dump({"type": "FeatureCollection", "features": buffer}, geojson)
         total_done = total_done + 1
         print(f"Converting to geojson: {total_done}/{total_files} [{int(total_done/total_files*100)}%]", end="\r", flush=True)
@@ -386,6 +372,8 @@ def convert_as_is(dataset, skip_existing):
                 if file.endswith(".shp"):
                     au_id = file.replace('.shp', '')            
                     local_buffer = read_geometries_from_shapefile(f"../../shapes/{dataset.get('origin')}/{au_id}.shp")
+                    for feature in local_buffer:
+                        feature.get('properties')['smartlab_geo_id'] = feature.get('properties').get(dataset.get('identifier'))
                     buffer.extend(local_buffer)
                     if not (skip_existing and os.path.isfile(f'../../geojson/br/uf/{au_type}/{au_id}_q0.json')):
                         os.makedirs(os.path.dirname(f'../../geojson/br/uf/{au_type}/{au_id}_q0.json'), exist_ok=True)
@@ -448,7 +436,7 @@ pool_as_is = [] # Pool to address shp conversion to basic geojson
 for dataset in datasets:
     pool_as_is.append((dataset, skip_existing))
 total_files = total_files + len(pool_as_is) + 1
-with multiprocess.Pool(processes=8) as pool:
+with multiprocess.Pool(processes=4) as pool:
     pool.starmap(convert_as_is, pool_as_is)
 
 # Generate combinations levels x geometries
@@ -457,7 +445,7 @@ for res_id, res in resolutions.items():
     # Iterate over levels to filter the resolution geometries
     for level in res.get('levels'):
         pool_combinations.append((res_id, level, places, res.get('identifier'), skip_existing))
-with multiprocess.Pool(processes=8) as pool:
+with multiprocess.Pool(processes=4) as pool:
     pool.starmap(generate, pool_combinations)
 
 # Generate filters
@@ -467,7 +455,7 @@ for res_id, res in {r_id:r for r_id, r in resolutions.items() if filters in r}.i
     for fltr in filters:
         for level in res.get('levels'):
             pool_filters.append((res_id, level, places, res.get('identifier'), skip_existing, fltr))
-with multiprocess.Pool(processes=8) as pool:
+with multiprocess.Pool(processes=4) as pool:
     pool.starmap(generate, pool_filters)
 
 # TODO 2 - Create mechanism to filter a combination of level x resolution (check aglomerados subnormais)
