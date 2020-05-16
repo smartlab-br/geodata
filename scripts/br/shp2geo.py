@@ -288,10 +288,15 @@ def load_places():
     df = df.merge(df_temp, on="municipio", how="outer")
 
     list_temp = requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/subdistritos').json()
+    df_sub = df_temp.drop(['municipio'], axis=1)
+    df_sub = df_sub.assign(
+        subdistrito = df_sub['distrito'].astype(str) + '00'
+    )
     df_temp = pd.DataFrame.from_dict({
         'subdistrito': [au.get('id') for au in list_temp],
         'distrito': [au.get('distrito',{}).get('id') for au in list_temp]
     })
+    df_temp = df_temp.append(df_sub)
     df = df.merge(df_temp, on="distrito", how="outer")
 
     # Evaluate REGIC data as provided by IBGE
@@ -311,7 +316,6 @@ def load_places():
         df = df.merge(clusters_ext.set_index('municipio'), on="municipio", how="outer")
         df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']] = df[['cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']].fillna(0.0).astype(str)
 
-    df['subdistrito'] = np.where(df.subdistrito == '0.0', df.distrito + '00', df.subdistrito.replace({'\.0':''}, regex=True))
     df[['cd_baixa_media', 'cd_alta', 'distrito', 'cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']] = df[['cd_baixa_media', 'cd_alta', 'distrito', 'cd_baixa_media_ext', 'cd_alta_ext', 'cd_influencia_ext']].replace({'\.0':''}, regex=True)
 
     return df
