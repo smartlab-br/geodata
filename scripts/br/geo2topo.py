@@ -101,7 +101,7 @@ for root, dirs, files in os.walk(strt):
 
 total_done = 0
 print(f"Creating threads for topojson generation: {total_files}", end="\r", flush=True)       
-with multiprocess.Pool(processes=8) as pool:
+with multiprocess.Pool(processes=4) as pool:
     pool.starmap(convert, args)
     # pool.close() # Just to make sure it releases memory
 

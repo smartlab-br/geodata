@@ -296,7 +296,7 @@ def load_places():
         'subdistrito': [au.get('id') for au in list_temp],
         'distrito': [au.get('distrito',{}).get('id') for au in list_temp]
     })
-    df_temp = df_temp.append(df_sub)
+    df_temp = df_temp.append(df_sub, sort=True)
     df = df.merge(df_temp, on="distrito", how="outer")
 
     # Evaluate REGIC data as provided by IBGE
