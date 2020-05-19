@@ -22,7 +22,7 @@ def setup_logger(name, log_file, level=logging.INFO):
     
     return logger
 
-topo_logger = setup_logger('topo_logger', 'log/log_error_topology.log', logging.WARNING)
+topo_logger = setup_logger('shapely.geos', 'log/log_topology.log', logging.INFO)
 logger = setup_logger('general_logger', 'log/log_error.log', logging.ERROR)
 
 def convert(origin, dest, quality_levels, skip_existing):
@@ -37,10 +37,8 @@ def convert(origin, dest, quality_levels, skip_existing):
         data = json.load(json_file)
         # json_file.close() # Just to make sure it releases memory
     try:
+        topo_logger.WARN(f'Generating topology from file {origin}')
         tj_base = topojson.Topology(data.get('features'), presimplify = False, prequantize=False, topology=True)
-    except TopologyException as te:
-        topo_logger.error(f">>>>> Error in topology from file {origin} <<<<<", exc_info=True)
-        return
     except Exception as e:
         topo_logger.error(f">>>>> Error in file {origin} <<<<<", exc_info=True)
         return
@@ -98,6 +96,9 @@ for root, dirs, files in os.walk(strt):
                 total_files = total_files + len(quality_levels)
             else:
                 total_files = total_files + 1
+
+loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+print(loggers)
 
 total_done = 0
 print(f"Creating threads for topojson generation: {total_files}", end="\r", flush=True)       
