@@ -19,6 +19,7 @@ def setup_logger(name, log_file, level=logging.INFO):
     logger = logging.getLogger(name)
     logger.addHandler(handler)
     logger.setLevel(level)
+    logger.propagate = False
     
     return logger
 
@@ -37,7 +38,7 @@ def convert(origin, dest, quality_levels, skip_existing):
         data = json.load(json_file)
         # json_file.close() # Just to make sure it releases memory
     try:
-        topo_logger.WARN(f'Generating topology from file {origin}')
+        topo_logger.warning(f'Generating topology from file {origin}')
         tj_base = topojson.Topology(data.get('features'), presimplify = False, prequantize=False, topology=True)
     except Exception as e:
         topo_logger.error(f">>>>> Error in file {origin} <<<<<", exc_info=True)
@@ -97,8 +98,8 @@ for root, dirs, files in os.walk(strt):
             else:
                 total_files = total_files + 1
 
-loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-print(loggers)
+# loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+# print(loggers)
 
 total_done = 0
 print(f"Creating threads for topojson generation: {total_files}", end="\r", flush=True)       
