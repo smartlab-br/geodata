@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "1100304", "Municipio": "VILHENA", "NOME_CIDAD": "Vilhena", "QUEST_3": 69199.1, "smartlab_geo_id": "1100304"}, "coordinates": [-60, -12]}], "type": "GeometryCollection"}}, "bbox": [-60.134778, -12.735126, -60.134778, -12.735126], "arcs": []}

@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "1400100", "Municipio": "BOA VISTA", "NOME_CIDAD": "Boa Vista", "QUEST_4": 189217.2, "smartlab_geo_id": "1400100"}, "coordinates": [-60, 2]}], "type": "GeometryCollection"}}, "bbox": [-60.672461, 2.820725, -60.672461, 2.820725], "arcs": []}

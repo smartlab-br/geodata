@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3522406", "Municipio": "ITAPEVA", "NOME_CIDAD": "Itapeva", "QUEST_3": 131575.154221, "smartlab_geo_id": "3522406"}, "coordinates": [-48, -23]}], "type": "GeometryCollection"}}, "bbox": [-48.876366999999995, -23.98695, -48.876366999999995, -23.98695], "arcs": []}

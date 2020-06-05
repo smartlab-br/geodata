@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "4209300", "Municipio": "LAGES", "NOME_CIDAD": "Lages", "QUEST_3": 159718.648665, "smartlab_geo_id": "4209300"}, "coordinates": [-50, -27]}], "type": "GeometryCollection"}}, "bbox": [-50.325827999999994, -27.81686, -50.325827999999994, -27.81686], "arcs": []}

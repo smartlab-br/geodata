@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "4111803", "Municipio": "JACAREZINHO", "NOME_CIDAD": "Jacarezinho", "QUEST_3": 100446.686667, "smartlab_geo_id": "4111803"}, "coordinates": [-49, -23]}], "type": "GeometryCollection"}}, "bbox": [-49.973600000000005, -23.1598, -49.973600000000005, -23.1598], "arcs": []}

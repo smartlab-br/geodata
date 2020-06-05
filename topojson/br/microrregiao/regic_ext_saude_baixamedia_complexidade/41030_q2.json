@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "4118501", "Municipio": "PATO BRANCO", "NOME_CIDAD": "Arranjo Populacional de Pato Branco/PR", "QUEST_3": 290465.845385, "smartlab_geo_id": "4118501"}, "coordinates": [-52, -26]}], "type": "GeometryCollection"}}, "bbox": [-52.673, -26.2285, -52.673, -26.2285], "arcs": []}

@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "4321402", "Municipio": "TENENTE PORTELA", "NOME_CIDAD": "Tenente Portela", "QUEST_3": 98162.673333, "smartlab_geo_id": "4321402"}, "coordinates": [-53, -27]}], "type": "GeometryCollection"}}, "bbox": [-53.75727, -27.372166999999997, -53.75727, -27.372166999999997], "arcs": []}

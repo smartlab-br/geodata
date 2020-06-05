@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3303401", "Municipio": "NOVA FRIBURGO", "NOME_CIDAD": "Nova Friburgo", "QUEST_3": 150704.507463, "smartlab_geo_id": "3303401"}, "coordinates": [-42, -22]}], "type": "GeometryCollection"}}, "bbox": [-42.532771, -22.286461, -42.532771, -22.286461], "arcs": []}

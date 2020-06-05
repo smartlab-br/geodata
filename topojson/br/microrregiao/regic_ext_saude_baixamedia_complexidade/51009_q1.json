@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "5100201", "Municipio": "AGUA BOA", "NOME_CIDAD": "\u00c3\u0081gua Boa", "QUEST_3": 52492.116667, "smartlab_geo_id": "5100201"}, "coordinates": [-52, -14]}], "type": "GeometryCollection"}}, "bbox": [-52.161837, -14.057032999999999, -52.161837, -14.057032999999999], "arcs": []}

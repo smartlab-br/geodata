@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2903201", "Municipio": "BARREIRAS", "NOME_CIDAD": "Barreiras", "QUEST_3": 389196.719673, "smartlab_geo_id": "2903201"}, "coordinates": [-44, -12]}], "type": "GeometryCollection"}}, "bbox": [-44.994513999999995, -12.146651, -44.994513999999995, -12.146651], "arcs": []}

@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2103000", "Municipio": "CAXIAS", "NOME_CIDAD": "Caxias", "QUEST_3": 137860.764772, "smartlab_geo_id": "2103000"}, "coordinates": [-43, -4]}], "type": "GeometryCollection"}}, "bbox": [-43.363897, -4.862156, -43.363897, -4.862156], "arcs": []}

@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3201209", "Municipio": "CACHOEIRO DE ITAPEMIRIM", "NOME_CIDAD": "Cachoeiro de Itapemirim", "QUEST_3": 225346.066133, "smartlab_geo_id": "3201209"}, "coordinates": [-41, -20]}], "type": "GeometryCollection"}}, "bbox": [-41.112966, -20.848679, -41.112966, -20.848679], "arcs": []}

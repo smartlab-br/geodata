@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "4317202", "Municipio": "SANTA ROSA", "NOME_CIDAD": "Santa Rosa", "QUEST_3": 91334.923712, "smartlab_geo_id": "4317202"}, "coordinates": [-54, -27]}], "type": "GeometryCollection"}}, "bbox": [-54.478224, -27.86675, -54.478224, -27.86675], "arcs": []}

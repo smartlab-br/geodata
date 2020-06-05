@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2606002", "Municipio": "GARANHUNS", "NOME_CIDAD": "Garanhuns", "QUEST_3": 411333.183333, "smartlab_geo_id": "2606002"}, "coordinates": [-36, -8]}], "type": "GeometryCollection"}}, "bbox": [-36.4962, -8.89113, -36.4962, -8.89113], "arcs": []}

@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3306206", "Municipio": "VASSOURAS", "NOME_CIDAD": "Vassouras", "QUEST_3": 68661.948534, "smartlab_geo_id": "3306206"}, "coordinates": [-43, -22]}], "type": "GeometryCollection"}}, "bbox": [-43.663874, -22.409008, -43.663874, -22.409008], "arcs": []}

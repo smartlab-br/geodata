@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3131703", "Municipio": "ITABIRA", "NOME_CIDAD": "Itabira", "QUEST_3": 82998.393109, "smartlab_geo_id": "3131703"}, "coordinates": [-43, -19]}], "type": "GeometryCollection"}}, "bbox": [-43.221022, -19.625101, -43.221022, -19.625101], "arcs": []}

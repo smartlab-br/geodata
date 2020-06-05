@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2202901", "Municipio": "CORRENTE", "NOME_CIDAD": "Corrente", "QUEST_3": 33177.902258, "smartlab_geo_id": "2202901"}, "coordinates": [-45, -10]}], "type": "GeometryCollection"}}, "bbox": [-45.178598, -10.435426999999999, -45.178598, -10.435426999999999], "arcs": []}

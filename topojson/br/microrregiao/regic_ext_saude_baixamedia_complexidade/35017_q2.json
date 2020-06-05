@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3502804", "Municipio": "ARACATUBA", "NOME_CIDAD": "Ara\u00c3\u00a7atuba", "QUEST_3": 367239.43072, "smartlab_geo_id": "3502804"}, "coordinates": [-50, -21]}], "type": "GeometryCollection"}}, "bbox": [-50.438897, -21.206345, -50.438897, -21.206345], "arcs": []}

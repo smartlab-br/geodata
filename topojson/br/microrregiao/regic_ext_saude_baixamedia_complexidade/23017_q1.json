@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2304400", "Municipio": "FORTALEZA", "NOME_CIDAD": "Arranjo Populacional de Fortaleza/CE", "QUEST_3": 1685561.127697, "smartlab_geo_id": "2304400"}, "coordinates": [-38, -3]}], "type": "GeometryCollection"}}, "bbox": [-38.525197, -3.724265, -38.525197, -3.724265], "arcs": []}
