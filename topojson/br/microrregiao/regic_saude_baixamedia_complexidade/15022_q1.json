@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "1506138", "Municipio": "REDENCAO", "NOME_CIDAD": "Reden\u00c3\u00a7\u00c3\u00a3o", "QUEST_3": 257433.866667, "smartlab_geo_id": "1506138"}, "coordinates": [-50, -8]}], "type": "GeometryCollection"}}, "bbox": [-50.038747, -8.041006, -50.038747, -8.041006], "arcs": []}

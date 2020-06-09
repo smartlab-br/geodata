@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2803500", "Municipio": "LAGARTO", "NOME_CIDAD": "Lagarto", "QUEST_3": 103397.013333, "smartlab_geo_id": "2803500"}, "coordinates": [-37, -10]}], "type": "GeometryCollection"}}, "bbox": [-37.671403999999995, -10.914246, -37.671403999999995, -10.914246], "arcs": []}

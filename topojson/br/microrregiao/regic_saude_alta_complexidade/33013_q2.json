@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3300100", "Municipio": "ANGRA DOS REIS", "NOME_CIDAD": "Angra dos Reis", "QUEST_4": 21315.0, "smartlab_geo_id": "3300100"}, "coordinates": [-44, -23]}], "type": "GeometryCollection"}}, "bbox": [-44.319627, -23.009116, -44.319627, -23.009116], "arcs": []}

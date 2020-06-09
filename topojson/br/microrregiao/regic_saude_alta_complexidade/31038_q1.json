@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3127701", "Municipio": "GOVERNADOR VALADARES", "NOME_CIDAD": "Governador Valadares", "QUEST_4": 395234.333727, "smartlab_geo_id": "3127701"}, "coordinates": [-41, -18]}], "type": "GeometryCollection"}}, "bbox": [-41.944972, -18.858442, -41.944972, -18.858442], "arcs": []}

@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3121605", "Municipio": "DIAMANTINA", "NOME_CIDAD": "Diamantina", "QUEST_3": 156985.396667, "smartlab_geo_id": "3121605"}, "coordinates": [-43, -18]}], "type": "GeometryCollection"}}, "bbox": [-43.597311, -18.244827, -43.597311, -18.244827], "arcs": []}

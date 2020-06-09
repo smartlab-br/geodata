@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3138203", "Municipio": "LAVRAS", "NOME_CIDAD": "Arranjo Populacional de Lavras/MG", "QUEST_3": 143809.828821, "smartlab_geo_id": "3138203"}, "coordinates": [-44, -21]}], "type": "GeometryCollection"}}, "bbox": [-44.999928, -21.244954, -44.999928, -21.244954], "arcs": []}

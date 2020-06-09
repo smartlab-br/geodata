@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2304103", "Municipio": "CRATEUS", "NOME_CIDAD": "Crate\u00c3\u00bas", "QUEST_3": 106908.873333, "smartlab_geo_id": "2304103"}, "coordinates": [-40, -5]}], "type": "GeometryCollection"}}, "bbox": [-40.668400000000005, -5.176951, -40.668400000000005, -5.176951], "arcs": []}

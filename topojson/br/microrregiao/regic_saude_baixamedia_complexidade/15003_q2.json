@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "1500602", "Municipio": "ALTAMIRA", "NOME_CIDAD": "Altamira", "QUEST_3": 144771.283333, "smartlab_geo_id": "1500602"}, "coordinates": [-52, -3]}], "type": "GeometryCollection"}}, "bbox": [-52.206035, -3.205329, -52.206035, -3.205329], "arcs": []}

@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2301109", "Municipio": "ARACATI", "NOME_CIDAD": "Aracati", "QUEST_3": 42071.256667, "smartlab_geo_id": "2301109"}, "coordinates": [-37, -4]}], "type": "GeometryCollection"}}, "bbox": [-37.772753, -4.567066, -37.772753, -4.567066], "arcs": []}
