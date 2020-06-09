@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "5100250", "Municipio": "ALTA FLORESTA", "NOME_CIDAD": "Alta Floresta", "QUEST_3": 49841.883333, "smartlab_geo_id": "5100250"}, "coordinates": [-56, -9]}], "type": "GeometryCollection"}}, "bbox": [-56.085471, -9.87665, -56.085471, -9.87665], "arcs": []}

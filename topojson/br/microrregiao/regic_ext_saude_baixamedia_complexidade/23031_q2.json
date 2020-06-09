@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2302503", "Municipio": "BREJO SANTO", "NOME_CIDAD": "Brejo Santo", "QUEST_3": 575167.166667, "smartlab_geo_id": "2302503"}, "coordinates": [-38, -7]}], "type": "GeometryCollection"}}, "bbox": [-38.985513999999995, -7.491638, -38.985513999999995, -7.491638], "arcs": []}

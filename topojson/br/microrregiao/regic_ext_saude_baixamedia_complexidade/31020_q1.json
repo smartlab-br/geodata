@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3148004", "Municipio": "PATOS DE MINAS", "NOME_CIDAD": "Patos de Minas", "QUEST_3": 286347.997308, "smartlab_geo_id": "3148004"}, "coordinates": [-46, -18]}], "type": "GeometryCollection"}}, "bbox": [-46.51707, -18.588359999999998, -46.51707, -18.588359999999998], "arcs": []}

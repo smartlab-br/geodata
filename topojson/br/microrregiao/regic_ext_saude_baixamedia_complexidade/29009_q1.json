@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2914604", "Municipio": "IRECE", "NOME_CIDAD": "Irec\u00c3\u00aa", "QUEST_3": 384449.686667, "smartlab_geo_id": "2914604"}, "coordinates": [-41, -11]}], "type": "GeometryCollection"}}, "bbox": [-41.857884999999996, -11.302954, -41.857884999999996, -11.302954], "arcs": []}

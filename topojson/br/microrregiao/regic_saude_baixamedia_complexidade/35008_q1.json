@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3511102", "Municipio": "CATANDUVA", "NOME_CIDAD": "Arranjo Populacional de Catanduva/SP", "QUEST_3": 155312.952333, "smartlab_geo_id": "3511102"}, "coordinates": [-48, -21]}], "type": "GeometryCollection"}}, "bbox": [-48.972806, -21.138222, -48.972806, -21.138222], "arcs": []}

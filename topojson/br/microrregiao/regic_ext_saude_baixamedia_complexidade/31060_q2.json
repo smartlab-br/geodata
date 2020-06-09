@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3152105", "Municipio": "PONTE NOVA", "NOME_CIDAD": "Arranjo Populacional de Ponte Nova/MG", "QUEST_3": 161274.523843, "smartlab_geo_id": "3152105"}, "coordinates": [-42, -20]}], "type": "GeometryCollection"}}, "bbox": [-42.908825, -20.41624, -42.908825, -20.41624], "arcs": []}

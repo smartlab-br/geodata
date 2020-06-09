@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "5102504", "Municipio": "CACERES", "NOME_CIDAD": "C\u00c3\u00a1ceres", "QUEST_3": 105691.483333, "smartlab_geo_id": "5102504"}, "coordinates": [-57, -16]}], "type": "GeometryCollection"}}, "bbox": [-57.686718, -16.064795999999998, -57.686718, -16.064795999999998], "arcs": []}

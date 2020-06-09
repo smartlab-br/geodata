@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "1302603", "Municipio": "MANAUS", "NOME_CIDAD": "Manaus", "QUEST_3": 1719882.648004, "smartlab_geo_id": "1302603"}, "coordinates": [-60, -3]}], "type": "GeometryCollection"}}, "bbox": [-60.025532999999996, -3.136244, -60.025532999999996, -3.136244], "arcs": []}

@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3520442", "Municipio": "ILHA SOLTEIRA", "NOME_CIDAD": "Ilha Solteira", "QUEST_3": 13765.616667, "smartlab_geo_id": "3520442"}, "coordinates": [-51, -20]}], "type": "GeometryCollection"}}, "bbox": [-51.344280999999995, -20.427127, -51.344280999999995, -20.427127], "arcs": []}

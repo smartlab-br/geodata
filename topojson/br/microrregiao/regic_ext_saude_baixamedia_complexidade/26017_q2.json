@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2611606", "Municipio": "RECIFE", "NOME_CIDAD": "Arranjo Populacional do Recife/PE", "QUEST_3": 1296374.725189, "smartlab_geo_id": "2611606"}, "coordinates": [-34, -8]}], "type": "GeometryCollection"}}, "bbox": [-34.888942, -8.062762, -34.888942, -8.062762], "arcs": []}

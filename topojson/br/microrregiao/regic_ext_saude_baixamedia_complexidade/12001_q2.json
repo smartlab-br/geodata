@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "1200203", "Municipio": "CRUZEIRO DO SUL", "NOME_CIDAD": "Cruzeiro do Sul", "QUEST_3": 150178.51, "smartlab_geo_id": "1200203"}, "coordinates": [-72, -7]}], "type": "GeometryCollection"}}, "bbox": [-72.66645799999999, -7.634397, -72.66645799999999, -7.634397], "arcs": []}

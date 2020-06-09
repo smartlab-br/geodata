@@ -8,21 +8,23 @@ import datetime
 import multiprocess
 import logging
 import logging.config
+# from shapely.geos import TopologyException
 
 def setup_logger(name, log_file, level=logging.INFO):
     """To setup as many loggers as you want"""
-
-    handler = logging.FileHandler(log_file)        
-    # handler.setFormatter(formatter)
+    handler = logging.FileHandler(log_file)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    handler.setFormatter(formatter)
 
     logger = logging.getLogger(name)
-    logger.setLevel(level)
     logger.addHandler(handler)
-
+    logger.setLevel(level)
+    logger.propagate = False
+    
     return logger
 
-topo_logger = setup_logger('topo_logger', 'log/log_error_topology.log')
-logger = setup_logger('general_logger', 'log/log_error.log')
+topo_logger = setup_logger('shapely.geos', 'log/log_topology.log', logging.INFO)
+logger = setup_logger('general_logger', 'log/log_error.log', logging.ERROR)
 
 def convert(origin, dest, quality_levels, skip_existing):
     global total_files, total_done, topo_logger, logger
@@ -36,10 +38,8 @@ def convert(origin, dest, quality_levels, skip_existing):
         data = json.load(json_file)
         # json_file.close() # Just to make sure it releases memory
     try:
+        topo_logger.warning(f'Generating topology from file {origin}')
         tj_base = topojson.Topology(data.get('features'), presimplify = False, prequantize=False, topology=True)
-    except TopologyException as te:
-        topo_logger.error(f">>>>> Error in topology from file {origin} <<<<<", exc_info=True)
-        return
     except Exception as e:
         topo_logger.error(f">>>>> Error in file {origin} <<<<<", exc_info=True)
         return
@@ -98,9 +98,12 @@ for root, dirs, files in os.walk(strt):
             else:
                 total_files = total_files + 1
 
+# loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+# print(loggers)
+
 total_done = 0
 print(f"Creating threads for topojson generation: {total_files}", end="\r", flush=True)       
-with multiprocess.Pool(processes=8) as pool:
+with multiprocess.Pool(processes=4) as pool:
     pool.starmap(convert, args)
     # pool.close() # Just to make sure it releases memory
 

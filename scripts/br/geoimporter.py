@@ -65,14 +65,21 @@ def download_file(key, value, resolution, id_au, skip_existing):
             total_done = total_done + 1
             print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
 
-def download_and_unzip(dirname, zip_file_name, dest, unit):
+def download_and_unzip(dirname, zip_file_name, dest, unit=None):
     global total_files, total_done
-    # Download the .zip
-    ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
-    ftp.current_directory = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"
-    f = ftp.file_proxy(f"{dirname}/{zip_file_name}")
-    fp = BytesIO()
-    f.download(fp)
+    # Download the .zip only if not exists in dir
+    f_name = f"{dest}/{zip_file_name}"
+    if os.path.isfile(f_name):
+        print(f"Skipping {f_name} download (ZIP already exists)")
+        fp = open(f_name, "rb")
+    else:
+        ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
+        ftp.current_directory = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"
+        f = ftp.file_proxy(f"{dirname}/{zip_file_name}")
+        fp = BytesIO()
+        f.download(fp)
+        with open(f_name, "wb") as zip_file_bin:
+            zip_file_bin.write(fp)
 
     # Unzip it, renaming the target
     zip_file = zipfile.ZipFile(fp)
@@ -80,7 +87,10 @@ def download_and_unzip(dirname, zip_file_name, dest, unit):
         ext = name.split('.')[-1]
         # zip_file.extract(name, f"{dest}/{unit}.{ext}")
         with zip_file.open(name) as internal_file:
-            f_name = f"{dest}/{unit}.{ext}"
+            if unit is not None:
+                f_name = f"{dest}/{unit}.{ext}"
+            else:
+                f_name = f"{dest}.{ext}"
             if skip_existing and os.path.isfile(f_name):
                 total_done = total_done + 1
                 print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
@@ -92,37 +102,36 @@ def download_and_unzip(dirname, zip_file_name, dest, unit):
                 print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
     return
 
-print(f"Starting topologies download...", end="\r", flush=True)
-if sys.argv[1] is None:
-    skip_existing = True
-else:
-    skip_existing = sys.argv[1].lower() in ['true', '1', 't', 'y', 'yes']
+# print(f"Starting topologies download...", end="\r", flush=True)
+# if sys.argv[1] is None:
+#     skip_existing = True
+# else:
+#     skip_existing = sys.argv[1].lower() in ['true', '1', 't', 'y', 'yes']
 
-total_files = 0
-total_done = 0
+# total_files = 0
+# total_done = 0
 
-for key, value in enumerate(resolution):
-    if value == 'br':
-        total_files = total_files + 1
-        download_file(key, value, resolution[key:], '', skip_existing)
-    else:
-        r_au = requests.get(f'{base_url_au}/{ua_url[value]}')
-        list_au = r_au.json()
-        total_files = total_files + len(list_au) * len(resolution[key:]) * 4
-        f_name = f'analysis_units_{value}.json'
-        with open(f_name, 'w', encoding='utf-8') as f:
-            json.dump(r_au.json(), f)
-            # f.close() # Just to make sure it releases memory
-        for au in list_au:
-            # print(f'Changing analysis unit to {au.get("id")}')
-            download_file(key, value, resolution[key:], au.get("id"), skip_existing)
+# for key, value in enumerate(resolution):
+#     if value == 'br':
+#         total_files = total_files + 1
+#         download_file(key, value, resolution[key:], '', skip_existing)
+#     else:
+#         r_au = requests.get(f'{base_url_au}/{ua_url[value]}')
+#         list_au = r_au.json()
+#         total_files = total_files + len(list_au) * len(resolution[key:]) * 4
+#         f_name = f'analysis_units_{value}.json'
+#         with open(f_name, 'w', encoding='utf-8') as f:
+#             json.dump(r_au.json(), f)
+#             # f.close() # Just to make sure it releases memory
+#         for au in list_au:
+#             # print(f'Changing analysis unit to {au.get("id")}')
+#             download_file(key, value, resolution[key:], au.get("id"), skip_existing)
 
 print(f"Starting shapefiles download...", end="\r", flush=True)
 total_files = total_files + 4 * 3 * 27
 
 base_dest = '../../shapes/territorio'
-with open('analysis_units_uf.json') as json_file:
-    uf_sigla2cod = {uf.get('sigla').lower():uf.get('id') for uf in json.load(json_file)}
+uf_sigla2cod = {uf.get('sigla').lower():uf.get('id') for uf in requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados').json()}
 
 # Download and unzip topologies from IBGE FTP service
 ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
@@ -139,6 +148,24 @@ for (dirname, subdirs, files) in ftp.walk('.'):
             # Build target directory
             dest = f"{base_dest}/uf/{resolution}"
             pool_args.append((dirname, zip_file_name, dest, unit))
+
+with multiprocess.Pool(processes=8) as pool:
+    pool.starmap(download_and_unzip, pool_args)
+
+# Download and unzip topologies from IBGE FTP service (municipalities, micro-regions, meso-regions states and regions)
+ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
+pool_args = []
+ftp.current_directory = "/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2015/Brasil/BR/"
+for (dirname, subdirs, files) in ftp.walk('.'):
+    for zip_file_name in files:
+        # Load only the zip files, except the BR.zip
+        if '.zip' in zip_file_name and 'BR' not in zip_file_name:
+            file_name = zip_file_name.replace(".zip","")
+            resolution = "".join("_".join(file_name.split('_')[1:]).split())
+
+            # Build target directory
+            dest = f"{base_dest}/{resolution}"
+            pool_args.append((dirname, zip_file_name, dest))
 
 with multiprocess.Pool(processes=8) as pool:
     pool.starmap(download_and_unzip, pool_args)

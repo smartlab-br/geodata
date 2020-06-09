@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3201506", "Municipio": "COLATINA", "NOME_CIDAD": "Colatina", "QUEST_3": 259163.25, "smartlab_geo_id": "3201506"}, "coordinates": [-40, -19]}], "type": "GeometryCollection"}}, "bbox": [-40.63446, -19.537923, -40.63446, -19.537923], "arcs": []}

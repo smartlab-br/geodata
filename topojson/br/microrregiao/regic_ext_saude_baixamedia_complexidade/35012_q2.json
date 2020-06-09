@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3516200", "Municipio": "FRANCA", "NOME_CIDAD": "Arranjo Populacional de Franca/SP", "QUEST_3": 102206.165588, "smartlab_geo_id": "3516200"}, "coordinates": [-47, -20]}], "type": "GeometryCollection"}}, "bbox": [-47.401117, -20.538255, -47.401117, -20.538255], "arcs": []}

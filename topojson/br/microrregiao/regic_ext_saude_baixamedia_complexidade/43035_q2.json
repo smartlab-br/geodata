@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "4315602", "Municipio": "RIO GRANDE", "NOME_CIDAD": "Rio Grande", "QUEST_3": 94045.081143, "smartlab_geo_id": "4315602"}, "coordinates": [-52, -32]}], "type": "GeometryCollection"}}, "bbox": [-52.086769999999994, -32.050446, -52.086769999999994, -32.050446], "arcs": []}
