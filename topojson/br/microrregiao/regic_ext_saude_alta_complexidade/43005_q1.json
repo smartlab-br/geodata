@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "4314100", "Municipio": "PASSO FUNDO", "NOME_CIDAD": "Passo Fundo", "QUEST_4": 1007712.297154, "smartlab_geo_id": "4314100"}, "coordinates": [-52, -28]}], "type": "GeometryCollection"}}, "bbox": [-52.407095, -28.261767, -52.407095, -28.261767], "arcs": []}

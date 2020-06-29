@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "1100049", "Municipio": "CACOAL", "NOME_CIDAD": "Cacoal", "QUEST_4": 236985.003333, "smartlab_geo_id": "1100049"}, "coordinates": [-61, -11]}], "type": "GeometryCollection"}}, "bbox": [-61.451156, -11.435578, -61.451156, -11.435578], "arcs": []}

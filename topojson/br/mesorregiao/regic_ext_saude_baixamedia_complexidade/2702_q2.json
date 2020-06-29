@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2700300", "Municipio": "ARAPIRACA", "NOME_CIDAD": "Arapiraca", "QUEST_3": 574575.902768, "smartlab_geo_id": "2700300"}, "coordinates": [-36, -9]}], "type": "GeometryCollection"}}, "bbox": [-36.662124999999996, -9.75095, -36.662124999999996, -9.75095], "arcs": []}

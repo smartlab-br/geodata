@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "2311801", "Municipio": "RUSSAS", "NOME_CIDAD": "Russas", "QUEST_3": 115408.423333, "smartlab_geo_id": "2311801"}, "coordinates": [-37, -4]}], "type": "GeometryCollection"}}, "bbox": [-37.975431, -4.939738, -37.975431, -4.939738], "arcs": []}

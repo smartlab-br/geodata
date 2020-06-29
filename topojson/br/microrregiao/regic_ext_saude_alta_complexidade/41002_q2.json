@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "4128104", "Municipio": "UMUARAMA", "NOME_CIDAD": "Arranjo Populacional de Umuarama/PR", "QUEST_4": 183065.117968, "smartlab_geo_id": "4128104"}, "coordinates": [-53, -23]}], "type": "GeometryCollection"}}, "bbox": [-53.3112, -23.7631, -53.3112, -23.7631], "arcs": []}

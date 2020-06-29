@@ -1,0 +1,1 @@
+{"type": "Topology", "objects": {"data": {"geometries": [{"type": "Point", "properties": {"Geocodigo": "3507506", "Municipio": "BOTUCATU", "NOME_CIDAD": "Botucatu", "QUEST_4": 488260.738521, "smartlab_geo_id": "3507506"}, "coordinates": [-48, -22]}], "type": "GeometryCollection"}}, "bbox": [-48.441289, -22.888382, -48.441289, -22.888382], "arcs": []}
