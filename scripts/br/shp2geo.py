@@ -260,7 +260,12 @@ resolutions = {
         'identifier': 'CD_GEOCODI',
         'namer': 'NM_BAIRRO',
         'filters': [
-            {'name': 'aglomerados_subnormais', 'col_res': 'setor_censitario', 'col_filter': 'aglomerados_subnormais'}
+            {
+                'name': 'aglomerados_subnormais',
+                'col_res': 'setor_censitario',
+                'col_filter': 'aglomerados_subnormais',
+                'namer': 'NM_AGSN', 'identifier': 'CodAGSN'
+            }
         ]
     }
 }
@@ -342,7 +347,7 @@ def get_filtered_places(places_id, fltr):
         df = pd.read_excel('AGSN2010Setores.xls')
         df = df.drop(['CD_MUNICIP', 'NM_MUNICIP', 'CD_UF', 'SG_UF'], axis=1)
         df.columns = ['join_id', 'place_id', 'name'] # setor_censitario, aglomerado_subnormal_id, aglomerado_subnormal_name
-        df = df.assign(subdistrito = df['join_id'].astype(str).str.slice(0,12))
+        df = df.assign(subdistrito = df['join_id'].astype(str).str.slice(0,11))
         return df[df['subdistrito'].isin(places_id)]
     return None     
 
@@ -357,14 +362,8 @@ def make_partition(geo_br, f_name, group, identifier, cluster_identifier, fltr=N
 
     if fltr is not None and fltr.get('name') in ['aglomerados_subnormais']:
         local_places = get_filtered_places(list(group['subdistrito']), fltr) # Falls back to subdistrito
-        feats = []
-        for feature in geo_br.get('features'):
-            for each_place in local_places:
-                if feature.get('properties').get(identifier) == each_place.get('join_id'):
-                    nu_feat = feature
-                    nu_feat['smartlab_geo_id'] = each_place.get('place_id')
-                    nu_feat['smartlab_geo_name'] = each_place.get('name')
-                    feats.append(nu_feat)
+        match = list(local_places['join_id'].astype(str).unique())
+        feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(identifier) in match]
     else:
         list_id = list(group[cluster_identifier].astype(str).unique())
         feats = [feature for feature in geo_br.get('features') if feature.get('properties').get(local_identifier) in list_id]
@@ -492,7 +491,7 @@ with multiprocess.Pool(processes=4) as pool:
 
 # Generate filters
 pool_filters = [] # Pool to address combination of levels and resolutions of geographies
-for res_id, res in {r_id:r for r_id, r in resolutions.items() if filters in r}.items():
+for res_id, res in {r_id:r for r_id, r in resolutions.items() if 'filters' in r}.items():
     # Iterate over levels to filter the resolution geometries
     for fltr in res.get('filters'):
         for level in res.get('levels'):

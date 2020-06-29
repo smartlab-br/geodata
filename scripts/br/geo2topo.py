@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import subprocess
+import pandas as pd
 from numpy import linspace
 import datetime
 import multiprocess
@@ -86,24 +87,33 @@ quality_levels = list(linspace(0,0.01,4))
 quality_levels.reverse()
 
 ## Multithread alternative
-args=[]
+geo_files=[]
 total_files = 0
 for root, dirs, files in os.walk(strt):
     path = root.replace("../../geojson", "")
     for file in files:
         if file.endswith(".json"):
-            args.append(('../../geojson{}/{}'.format(path,file), '../../topojson{}/{}'.format(path,file), quality_levels, True))
+            # args.append(('../../geojson{}/{}'.format(path,file), '../../topojson{}/{}'.format(path,file), quality_levels, True))
+            geo_files.append(
+                { 
+                    'origin': '../../geojson{}/{}'.format(path,file),
+                    'destination': '../../topojson{}/{}'.format(path,file),
+                    'size': os.stat('../../geojson{}/{}'.format(path,file)).st_size
+                }
+            )
             if '_q0' in file:
                 total_files = total_files + len(quality_levels)
             else:
                 total_files = total_files + 1
+df_args = pd.DataFrame(geo_files).sort_values(by=['size']).reset_index().to_dict(orient='records')
+args = [(row.get('origin'), row.get('destination'), quality_levels, True) for _row_key, row in enumerate(df_args)]
 
 # loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
 # print(loggers)
 
 total_done = 0
 print(f"Creating threads for topojson generation: {total_files}", end="\r", flush=True)       
-with multiprocess.Pool(processes=6) as pool:
+with multiprocess.Pool(processes=4) as pool:
     pool.starmap(convert, args)
     # pool.close() # Just to make sure it releases memory
 
