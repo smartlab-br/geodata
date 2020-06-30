@@ -106,7 +106,14 @@ for root, dirs, files in os.walk(strt):
             else:
                 total_files = total_files + 1
 df_args = pd.DataFrame(geo_files).sort_values(by=['size']).reset_index().to_dict(orient='records')
-args = [(row.get('origin'), row.get('destination'), quality_levels, True) for _row_key, row in enumerate(df_args)]
+
+# args = [(row.get('origin'), row.get('destination'), quality_levels, True) for _row_key, row in enumerate(df_args)]
+args = []
+for _row_key, row in enumerate(df_args):
+    if skip_existing and all([os.path.isfile(row.get('destination').replace('q0', f'q{quality_key+1}')) for quality_key, quality_simpl in enumerate(quality_levels)]):
+        continue
+    args.append((row.get('origin'), row.get('destination'), quality_levels, True))
+print(f"\n{len(args)}\n")
 
 # loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
 # print(loggers)
