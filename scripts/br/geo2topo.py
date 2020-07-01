@@ -113,6 +113,7 @@ for _row_key, row in enumerate(df_args):
     if skip_existing and all([os.path.isfile(row.get('destination').replace('q0', f'q{quality_key+1}')) for quality_key, quality_simpl in enumerate(quality_levels)]):
         continue
     args.append((row.get('origin'), row.get('destination'), quality_levels, True))
+total_done = total_done + (len(quality_levels) * (len(df_args) - len(args)))
 print(f"\n{len(args)}\n")
 
 # loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
