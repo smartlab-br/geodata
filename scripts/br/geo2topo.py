@@ -107,6 +107,8 @@ for root, dirs, files in os.walk(strt):
                 total_files = total_files + 1
 df_args = pd.DataFrame(geo_files).sort_values(by=['size']).reset_index().to_dict(orient='records')
 
+total_done = 0
+
 # args = [(row.get('origin'), row.get('destination'), quality_levels, True) for _row_key, row in enumerate(df_args)]
 args = []
 for _row_key, row in enumerate(df_args):
@@ -119,10 +121,10 @@ print(f"\n{len(args)}\n")
 # loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
 # print(loggers)
 
-total_done = 0
 print(f"Creating threads for topojson generation: {total_files}", end="\r", flush=True)       
-with multiprocess.Pool(processes=4) as pool:
-    pool.starmap(convert, args)
-    # pool.close() # Just to make sure it releases memory
+with multiprocess.Pool(processes=8) as pool:
+    pool.starmap_async(convert, args)
+    pool.close()
+    pool.join()
 
 print(f"All topojson files generated!!!!")
