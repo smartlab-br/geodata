@@ -65,7 +65,7 @@ def download_file(key, value, resolution, id_au, skip_existing):
             total_done = total_done + 1
             print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
 
-def download_and_unzip(dirname, zip_file_name, dest, unit=None):
+def download_and_unzip(ftp_dir, dirname, zip_file_name, dest, unit=None):
     global total_files, total_done
     # Download the .zip only if not exists in dir
     f_name = f"{dest}/{zip_file_name}"
@@ -74,42 +74,45 @@ def download_and_unzip(dirname, zip_file_name, dest, unit=None):
         fp = open(f_name, "rb")
     else:
         ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
-        ftp.current_directory = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"
+        ftp.current_directory = ftp_dir
         f = ftp.file_proxy(f"{dirname}/{zip_file_name}")
         fp = BytesIO()
         f.download(fp)
+        os.makedirs(os.path.dirname(f_name), exist_ok=True)
         with open(f_name, "wb") as zip_file_bin:
-            zip_file_bin.write(fp)
+            zip_file_bin.write(fp.read())
 
-    # Unzip it, renaming the target
-    zip_file = zipfile.ZipFile(fp)
-    for name in zip_file.namelist():
-        ext = name.split('.')[-1]
-        # zip_file.extract(name, f"{dest}/{unit}.{ext}")
-        with zip_file.open(name) as internal_file:
-            if unit is not None:
-                f_name = f"{dest}/{unit}.{ext}"
-            else:
-                f_name = f"{dest}.{ext}"
-            if skip_existing and os.path.isfile(f_name):
-                total_done = total_done + 1
-                print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
-                continue
-            os.makedirs(os.path.dirname(f_name), exist_ok=True)
-            with open(f_name, "wb") as target_file:
-                target_file.write(internal_file.read())
-                total_done = total_done + 1
-                print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
+        # Unzip it, renaming the target
+        zip_file = zipfile.ZipFile(fp)
+        for name in zip_file.namelist():
+            ext = name.split('.')[-1]
+            # zip_file.extract(name, f"{dest}/{unit}.{ext}")
+            with zip_file.open(name) as internal_file:
+                if 'REGIC' in dest:
+                    f_name = f"{dest}/{name.split('.')[0]}/{name}"
+                elif unit is not None:
+                    f_name = f"{dest}/{unit}.{ext}"
+                else:
+                    f_name = f"{dest}.{ext}"
+                if skip_existing and os.path.isfile(f_name):
+                    total_done = total_done + 1
+                    print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
+                    continue
+                os.makedirs(os.path.dirname(f_name), exist_ok=True)
+                with open(f_name, "wb") as target_file:
+                    target_file.write(internal_file.read())
+                    total_done = total_done + 1
+                    print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
     return
 
 # print(f"Starting topologies download...", end="\r", flush=True)
-# if sys.argv[1] is None:
-#     skip_existing = True
-# else:
-#     skip_existing = sys.argv[1].lower() in ['true', '1', 't', 'y', 'yes']
+if sys.argv[1] is None:
+    skip_existing = True
+else:
+    skip_existing = sys.argv[1].lower() in ['true', '1', 't', 'y', 'yes']
 
-# total_files = 0
-# total_done = 0
+total_files = 0
+total_done = 0
 
 # for key, value in enumerate(resolution):
 #     if value == 'br':
@@ -135,8 +138,9 @@ uf_sigla2cod = {uf.get('sigla').lower():uf.get('id') for uf in requests.get('htt
 
 # Download and unzip topologies from IBGE FTP service
 ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
+ftp_dir = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"
 pool_args = []
-ftp.current_directory = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"
+ftp.current_directory = ftp_dir
 for (dirname, subdirs, files) in ftp.walk('.'):
     for zip_file_name in files:
         # Load only the zip files, except the municipalities
@@ -147,15 +151,16 @@ for (dirname, subdirs, files) in ftp.walk('.'):
 
             # Build target directory
             dest = f"{base_dest}/uf/{resolution}"
-            pool_args.append((dirname, zip_file_name, dest, unit))
+            pool_args.append((ftp_dir, dirname, zip_file_name, dest, unit))
 
 with multiprocess.Pool(processes=8) as pool:
     pool.starmap(download_and_unzip, pool_args)
 
 # Download and unzip topologies from IBGE FTP service (municipalities, micro-regions, meso-regions states and regions)
 ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
+ftp_dir = "/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/"
 pool_args = []
-ftp.current_directory = "/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2015/Brasil/BR/"
+ftp.current_directory = ftp_dir
 for (dirname, subdirs, files) in ftp.walk('.'):
     for zip_file_name in files:
         # Load only the zip files, except the BR.zip
@@ -165,9 +170,21 @@ for (dirname, subdirs, files) in ftp.walk('.'):
 
             # Build target directory
             dest = f"{base_dest}/{resolution}"
-            pool_args.append((dirname, zip_file_name, dest))
+            pool_args.append((ftp_dir, dirname, zip_file_name, dest))
 
 with multiprocess.Pool(processes=8) as pool:
     pool.starmap(download_and_unzip, pool_args)
+
+# Donwload and unzip REGIC topologies from IBGE
+ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
+ftp_dir = "/organizacao_do_territorio/divisao_regional/regioes_de_influencia_das_cidades/Regioes_de_influencia_das_cidades_2018_Resultados_preliminares/"
+ftp.current_directory = ftp_dir
+download_and_unzip(ftp_dir, '.', 'bases_graficas_saude.zip', '../../shapes/REGIC')
+# Unzip REGIC details (internal zip)
+for root, dirs, files in os.walk("../../shapes/REGIC", topdown=False):
+    for name in files:
+        if '.zip' in name and name != 'bases_graficas_saude.zip':
+            with zipfile.ZipFile(os.path.join(root, name), 'r') as zip_ref:
+                zip_ref.extractall(root)
 
 print(f"All files downloaded and unzipped!!!!       ")
