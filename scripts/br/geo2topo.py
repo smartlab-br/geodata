@@ -8,6 +8,7 @@ import datetime
 import multiprocess
 import logging
 import logging.config
+import pandas as pd
 # from shapely.geos import TopologyException
 
 def setup_logger(name, log_file, level=logging.INFO):
@@ -86,13 +87,21 @@ quality_levels = list(linspace(0,0.01,4))
 quality_levels.reverse()
 
 ## Multithread alternative
-args=[]
+meta_args=[]
 total_files = 0
 for root, dirs, files in os.walk(strt):
     path = root.replace("../../geojson", "")
     for file in files:
         if file.endswith(".json"):
-            args.append(('../../geojson{}/{}'.format(path,file), '../../topojson{}/{}'.format(path,file), quality_levels, True))
+            meta_args.append({
+                'size': os.stat(os.path.join(root, file)).st_size,
+                'arg': (
+                    '../../geojson{}/{}'.format(path,file),
+                    '../../topojson{}/{}'.format(path,file),
+                    quality_levels,
+                    True
+                )
+            })
             if '_q0' in file:
                 total_files = total_files + len(quality_levels)
             else:
@@ -104,7 +113,7 @@ for root, dirs, files in os.walk(strt):
 total_done = 0
 print(f"Creating threads for topojson generation: {total_files}", end="\r", flush=True)       
 with multiprocess.Pool(processes=4) as pool:
-    pool.starmap(convert, args)
+    pool.starmap(convert, list(pd.DataFrame(meta_args).sort_values(by=["size"])['arg']))
     # pool.close() # Just to make sure it releases memory
 
 print(f"All topojson files generated!!!!")
