@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import sys
 import multiprocess
 from ftptool import FTPHost
 from io import BytesIO
@@ -26,8 +27,16 @@ class GeoImporter:
         'municipio': 'municipios'
     }
 
-    def __init__(self, skip_existing=True):
-        self.skip_existing = skip_existing
+    def __init__(self, args):
+        self.curr_script_dir = "/".join(args[0].split('/')[:-1])
+        self.base_dir = "../.."
+        self.skip_existing = True
+
+        if len(args) > 1:
+            self.base_dir = args[1]
+        if len(args) > 2:
+            self.skip_existing = args[2]
+
         self.total_files = 4 * 3 * 27
         self.total_done = 0
 
@@ -39,9 +48,8 @@ class GeoImporter:
             flush=True
         )
 
-    @staticmethod
-    def select_destination(main, det, quality, id_au):
-        base = "../../geojson/"
+    def select_destination(self, main, det, quality, id_au):
+        base = f"{self.base_dir}/geojson/"
         if main == det:
             if main == 'br':
                 return f'{base}/br/_q{quality}.json'
@@ -133,7 +141,7 @@ class GeoImporter:
         #             download_file(key, value, resolution[key:], au.get("id"), skip_existing)
         print(f"Starting shapefiles download...", end="\r", flush=True)
 
-        base_dest = '../../shapes/territorio'
+        base_dest = f'{self.base_dir}/shapes/territorio'
         uf_sigla2cod = {
             uf.get('sigla').lower(): uf.get('id')
             for
@@ -189,9 +197,9 @@ class GeoImporter:
         ftp_dir = "/organizacao_do_territorio/divisao_regional/regioes_de_influencia_das_cidades/" \
                   "Regioes_de_influencia_das_cidades_2018_Resultados_preliminares/"
         ftp.current_directory = ftp_dir
-        self.download_and_unzip(ftp_dir, '.', 'bases_graficas_saude.zip', '../../shapes/REGIC')
+        self.download_and_unzip(ftp_dir, '.', 'bases_graficas_saude.zip', f'{self.base_dir}/shapes/REGIC')
         # Unzip REGIC details (internal zip)
-        for root, dirs, files in os.walk("../../shapes/REGIC", topdown=False):
+        for root, dirs, files in os.walk(f"{self.base_dir}/shapes/REGIC", topdown=False):
             for name in files:
                 if '.zip' in name and name != 'bases_graficas_saude.zip':
                     with zipfile.ZipFile(os.path.join(root, name), 'r') as zip_ref:
@@ -201,4 +209,4 @@ class GeoImporter:
 
 
 # Run the code
-GeoImporter().run()
+GeoImporter(sys.argv).run()

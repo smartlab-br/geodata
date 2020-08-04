@@ -1,6 +1,7 @@
 import topojson
 import json
 import os
+import sys
 from numpy import linspace
 import multiprocess
 import logging
@@ -9,8 +10,16 @@ import pandas as pd
 
 
 class Geo2Topo:
-    def __init__(self, skip_existing=True):
-        self.skip_existing = skip_existing
+    def __init__(self, args):
+        self.curr_script_dir = "/".join(args[0].split('/')[:-1])
+        self.base_dir = "../.."
+        self.skip_existing = True
+
+        if len(args) > 1:
+            self.base_dir = args[1]
+        if len(args) > 2:
+            self.skip_existing = args[2]
+
         self.topo_logger = self.setup_logger('shapely.geos', 'log/log_topology.log', logging.INFO)
         self.logger = self.setup_logger('general_logger', 'log/log_error.log', logging.ERROR)
         self.total_done = 0
@@ -94,8 +103,8 @@ class Geo2Topo:
         print(f"Starting conversion from geojson to topojson...", end='\r', flush=True)
 
         meta_args = []
-        for root, dirs, files in os.walk("../../geojson"):
-            path = root.replace("../../geojson", "")
+        for root, dirs, files in os.walk(f"{self.base_dir}/geojson"):
+            path = root.replace(f"{self.base_dir}/geojson", "")
             for file in files:
                 if file.endswith(".json"):
                     meta_args.append({
@@ -123,4 +132,4 @@ class Geo2Topo:
 
 
 # Run the code
-Geo2Topo().run()
+Geo2Topo(sys.argv).run()

@@ -2,6 +2,7 @@ import shapefile
 import json
 import multiprocess
 import os
+import sys
 import pandas as pd
 import requests
 
@@ -290,8 +291,16 @@ class Shape2Geo:
         'setor_censitario': 'subdistrito'
     }  # Ommited keys are considered to have key == value in the semantics of this script
 
-    def __init__(self, skip_existing=True):
-        self.skip_existing = skip_existing
+    def __init__(self, args):
+        self.curr_script_dir = "/".join(args[0].split('/')[:-1])
+        self.base_dir = "../.."
+        self.skip_existing = True
+
+        if len(args) > 1:
+            self.base_dir = args[1]
+        if len(args) > 2:
+            self.skip_existing = args[2]
+
         self.total_files = 0
         self.total_done = 0
         self.places = self.load_places()
@@ -304,11 +313,10 @@ class Shape2Geo:
             flush=True
         )
 
-    @staticmethod
-    def load_places():
+    def load_places(self):
         """ Load the levels correlations as a pandas dataframe """
         # Granularity = setor_censitario
-        print("Starting conversion to geojson...", end='\r', flush=True)
+        print("Generating places correspondence table...", end='\r', flush=True)
 
         list_municipio = requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/municipios').json()
         df = pd.DataFrame.from_dict({
@@ -342,15 +350,15 @@ class Shape2Geo:
         df = df.merge(df_temp, on="distrito", how="outer")
 
         # Evaluate REGIC data as provided by IBGE
-        clusters = pd.read_excel('REGIC2018_Regionalizacao_Saude_Primeira_Aproximacao.xlsx')
+        clusters = pd.read_excel(f'{self.curr_script_dir}/REGIC2018_Regionalizacao_Saude_Primeira_Aproximacao.xlsx')
         clusters.columns = ['municipio', 'nm_mun', 'pop18', 'cd_baixa_media', 'nm_baixa_media', 'cd_alta', 'nm_alta']
 
         df = df.merge(clusters.set_index('municipio'), on="municipio", how="outer")
         df[['cd_baixa_media', 'cd_alta', 'distrito', 'subdistrito']] = df[['cd_baixa_media', 'cd_alta', 'distrito', 'subdistrito']].fillna(0.0).astype(str)
 
         # Evaluate clusters with all municipalities, including those absent from IBGE's REGIC table
-        if os.path.isfile('REGIC_melt.csv'):
-            clusters_ext = pd.read_csv('REGIC_melt.csv')
+        if os.path.isfile(f'{self.curr_script_dir}/REGIC_melt.csv'):
+            clusters_ext = pd.read_csv(f'{self.curr_script_dir}/REGIC_melt.csv')
             clusters_ext = clusters_ext.drop([
                 'exerce_influencia_regic', 'influenciado_regic', 'presta_alta', 'presta_baixa', 'procura_servicos_alta',
                 'procura_servicos_baixa', 'grau_infl_recebe', 'grau_infl_exerce'
@@ -371,10 +379,9 @@ class Shape2Geo:
 
         return df
 
-    @staticmethod
-    def get_filtered_places(places_id, fltr):
+    def get_filtered_places(self, places_id, fltr):
         if fltr.get('name') == 'aglomerados_subnormais':
-            df = pd.read_csv('AGSN2010Setores.csv')
+            df = pd.read_csv(f'{self.curr_script_dir}/AGSN2010Setores.csv')
             df = df.drop(['CD_MUNICIP', 'NM_MUNICIP', 'CD_UF', 'SG_UF'], axis=1)
             # Column renaming: setor_censitario, aglomerado_subnormal_id, aglomerado_subnormal_name
             df.columns = ['join_id', 'place_id', 'name']
@@ -435,11 +442,11 @@ class Shape2Geo:
         # write the GeoJSON files
         if 'file' in dataset:  # Already in BR level
             # Brazil
-            if not (self.skip_existing and os.path.isfile(f'../../geojson/br/{au_type}_q0.json')):
-                os.makedirs(os.path.dirname(f'../../geojson/br/{au_type}_q0.json'), exist_ok=True)
-                with open(f'../../geojson/br/{au_type}_q0.json', "w") as geojson:
+            if not (self.skip_existing and os.path.isfile(f'{self.base_dir}/geojson/br/{au_type}_q0.json')):
+                os.makedirs(os.path.dirname(f'{self.base_dir}/geojson/br/{au_type}_q0.json'), exist_ok=True)
+                with open(f'{self.base_dir}/geojson/br/{au_type}_q0.json', "w") as geojson:
                     buffer = self.read_geometries_from_shapefile(
-                        f"../../shapes/{dataset.get('origin')}/{dataset.get('file')}.shp"
+                        f"{self.base_dir}/shapes/{dataset.get('origin')}/{dataset.get('file')}.shp"
                     )
                     for feature in buffer:
                         feature.get('properties')['smartlab_geo_id'] = feature.get('properties').get(
@@ -453,30 +460,30 @@ class Shape2Geo:
         else:  # All the rest is in UF level - generate as it is and then join the features to a single, BR, geojson
             buffer = []
             # UF (iterate)
-            for root, dirs, files in os.walk(f"../../shapes/{dataset.get('origin')}"):
-                # path = root.replace("../../geojson", "")
+            for root, dirs, files in os.walk(f"{self.base_dir}/shapes/{dataset.get('origin')}"):
+                # path = root.replace(f"{self.base_dir}/geojson", "")
                 for file in files:
                     if file.endswith(".shp"):
                         au_id = file.replace('.shp', '')
                         local_buffer = self.read_geometries_from_shapefile(
-                            f"../../shapes/{dataset.get('origin')}/{au_id}.shp"
+                            f"{self.base_dir}/shapes/{dataset.get('origin')}/{au_id}.shp"
                         )
                         for feature in local_buffer:
                             feature.get('properties')['smartlab_geo_id'] = feature.get('properties').get(
                                 dataset.get('identifier')
                             )
                         buffer.extend(local_buffer)
-                        if not (self.skip_existing and os.path.isfile(f'../../geojson/br/uf/{au_type}/{au_id}_q0.json')):
+                        if not (self.skip_existing and os.path.isfile(f'{self.base_dir}/geojson/br/uf/{au_type}/{au_id}_q0.json')):
                             os.makedirs(
-                                os.path.dirname(f'../../geojson/br/uf/{au_type}/{au_id}_q0.json'),
+                                os.path.dirname(f'{self.base_dir}/geojson/br/uf/{au_type}/{au_id}_q0.json'),
                                 exist_ok=True
                             )
-                            with open(f'../../geojson/br/uf/{au_type}/{au_id}_q0.json', "w") as geojson:
+                            with open(f'{self.base_dir}/geojson/br/uf/{au_type}/{au_id}_q0.json', "w") as geojson:
                                 json.dump({"type": "FeatureCollection", "features": local_buffer}, geojson)
                         self.update_progress(1)
             # Brazil
-            if not (self.skip_existing and os.path.isfile(f'../../geojson/br/{au_type}_q0.json')):
-                with open(f'../../geojson/br/{au_type}_q0.json', "w") as geojson:
+            if not (self.skip_existing and os.path.isfile(f'{self.base_dir}/geojson/br/{au_type}_q0.json')):
+                with open(f'{self.base_dir}/geojson/br/{au_type}_q0.json', "w") as geojson:
                     json.dump({"type": "FeatureCollection", "features": buffer}, geojson)
             self.update_progress(1)
         return
@@ -484,8 +491,8 @@ class Shape2Geo:
     def generate(self, res_id, level, identifier, fltr=None):
         """ Generates new topologies by combining levels and resolutions """
         # read the BR geojson
-        if os.path.isfile(f"../../geojson/br/{res_id}_q0.json"):
-            f_name = f"../../geojson/br/{res_id}_q0.json"
+        if os.path.isfile(f"{self.base_dir}/geojson/br/{res_id}_q0.json"):
+            f_name = f"{self.base_dir}/geojson/br/{res_id}_q0.json"
         else:
             return
         with open(f_name, 'r') as json_file:
@@ -503,9 +510,9 @@ class Shape2Geo:
         self.update_progress(0)
         for id_part, part in grouped:
             if fltr is None:
-                f_name = f'../../geojson/br/{level}/{res_id}/{id_part}_q0.json'
+                f_name = f'{self.base_dir}/geojson/br/{level}/{res_id}/{id_part}_q0.json'
             else:
-                f_name = f"../../geojson/br/{level}/{res_id}/{fltr.get('name')}/{id_part}_q0.json"
+                f_name = f"{self.base_dir}/geojson/br/{level}/{res_id}/{fltr.get('name')}/{id_part}_q0.json"
             if self.skip_existing and os.path.isfile(f_name):
                 continue
             # Filter geometries and save
@@ -545,4 +552,4 @@ class Shape2Geo:
 
 
 # Run the code
-Shape2Geo().run()
+Shape2Geo(sys.argv).run()
