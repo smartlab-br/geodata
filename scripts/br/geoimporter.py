@@ -2,7 +2,6 @@ import requests
 import json
 import os
 import sys
-import math
 import multiprocess
 from ftptool import FTPHost
 from io import BytesIO
@@ -14,7 +13,8 @@ base_url_au = 'https://servicodados.ibge.gov.br/api/v1/localidades'
 # 1. Inclui na malha as macrorregiões. Válido apenas quando a localidade for BR.
 # 2. Inclui na malha as Unidades da Federação. Válido apenas quando a localidade for BR ou uma macroregião
 # 3. Inclui na malha as mesorregiões. Válido apenas quando a localidade for BR, macroregião ou Unidade da Federação
-# 4. Inclui na malha as microrregiões. Válido apenas quando a localidade for BR, macroregião, Unidade da Federação ou mesorregião
+# 4. Inclui na malha as microrregiões. Válido apenas quando a localidade for BR, macroregião,
+#    Unidade da Federação ou mesorregião
 # 5. Inclui na malha os municípios
 resolution = ['br', 'macrorregiao', 'uf', 'mesorregiao', 'microrregiao', 'municipio']
 
@@ -26,8 +26,9 @@ ua_url = {
     'municipio': 'municipios'
 }
 
+
 def select_destination(main, det, quality, id_au):
-    base="../../geojson/"
+    base = "../../geojson/"
     if main == det:
         if main == 'br':
             return f'{base}/br/_q{quality}.json'
@@ -36,14 +37,17 @@ def select_destination(main, det, quality, id_au):
         return f'{base}/br/{det}_q{quality}.json'
     return f'{base}/br/{main}/{det}/{id_au}_q{quality}.json'
 
+
 def download_file(key, value, resolution, id_au, skip_existing):
     global total_files, total_done
     base_url = 'https://servicodados.ibge.gov.br/api/v2/malhas'
 
-    # Padrão de qualidade da imagem. Pode assumir valores de 1 a 4, sendo 1 o de qualidade mais inferior. Por padrão, assume o valor 4
-    qualities = list(range(1,5))
+    # Padrão de qualidade da imagem. Pode assumir valores de 1 a 4, sendo 1 o de qualidade mais inferior.
+    # Por padrão, assume o valor 4.
+    qualities = list(range(1, 5))
 
-    # Formato de renderização da malha. Útil quando o usuário preferir informar o formato de renderização diretamente na URL do navegador, sem a necessidade de informar o parâmetro Accept
+    # Formato de renderização da malha. Útil quando o usuário preferir informar o formato de renderização diretamente
+    # na URL do navegador, sem a necessidade de informar o parâmetro Accept.
     fmt = 'application/vnd.geo+json'
 
     for key_detail, value_detail in enumerate(resolution):
@@ -51,7 +55,11 @@ def download_file(key, value, resolution, id_au, skip_existing):
             f_name = select_destination(value, value_detail, quality, id_au)
             if skip_existing and os.path.isfile(f_name):
                 total_done = total_done + 1
-                print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
+                print(
+                    f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ",
+                    end="\r",
+                    flush=True
+                )
                 continue
             os.makedirs(os.path.dirname(f_name), exist_ok=True)
 
@@ -63,7 +71,12 @@ def download_file(key, value, resolution, id_au, skip_existing):
                 json.dump(r.json(), f)
                 # f.close() # Just to make sure it releases memory
             total_done = total_done + 1
-            print(f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
+            print(
+                f"Downloading: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ",
+                end="\r",
+                flush=True
+            )
+
 
 def download_and_unzip(ftp_dir, dirname, zip_file_name, dest, unit=None):
     global total_files, total_done
@@ -71,7 +84,7 @@ def download_and_unzip(ftp_dir, dirname, zip_file_name, dest, unit=None):
     f_name = f"{dest}/{zip_file_name}"
     if os.path.isfile(f_name):
         print(f"Skipping {f_name} download (ZIP already exists)")
-        fp = open(f_name, "rb")
+        # fp = open(f_name, "rb")
     else:
         ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
         ftp.current_directory = ftp_dir
@@ -96,14 +109,23 @@ def download_and_unzip(ftp_dir, dirname, zip_file_name, dest, unit=None):
                     f_name = f"{dest}.{ext}"
                 if skip_existing and os.path.isfile(f_name):
                     total_done = total_done + 1
-                    print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
+                    print(
+                        f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]  ",
+                        end="\r",
+                        flush=True
+                    )
                     continue
                 os.makedirs(os.path.dirname(f_name), exist_ok=True)
                 with open(f_name, "wb") as target_file:
                     target_file.write(internal_file.read())
                     total_done = total_done + 1
-                    print(f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]    ", end="\r", flush=True)
+                    print(
+                        f"Downloading and unzipping: {total_done}/{total_files} [{int(total_done/total_files*100)}%]  ",
+                        end="\r",
+                        flush=True
+                    )
     return
+
 
 # print(f"Starting topologies download...", end="\r", flush=True)
 if sys.argv[1] is None:
@@ -134,18 +156,25 @@ print(f"Starting shapefiles download...", end="\r", flush=True)
 total_files = total_files + 4 * 3 * 27
 
 base_dest = '../../shapes/territorio'
-uf_sigla2cod = {uf.get('sigla').lower():uf.get('id') for uf in requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados').json()}
+uf_sigla2cod = {
+    uf.get('sigla').lower(): uf.get('id')
+    for
+    uf
+    in
+    requests.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados').json()
+}
 
 # Download and unzip topologies from IBGE FTP service
 ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
-ftp_dir = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2010/setores_censitarios_shp"
+ftp_dir = "/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/" \
+          "censo_2010/setores_censitarios_shp"
 pool_args = []
 ftp.current_directory = ftp_dir
 for (dirname, subdirs, files) in ftp.walk('.'):
     for zip_file_name in files:
         # Load only the zip files, except the municipalities
         if '.zip' in zip_file_name and 'municipios' not in zip_file_name:
-            file_name = zip_file_name.replace(".zip","")
+            file_name = zip_file_name.replace(".zip", "")
             unit = str(uf_sigla2cod.get(file_name.split('_')[0]))
             resolution = "".join("_".join(file_name.split('_')[1:]).split())
 
@@ -165,7 +194,7 @@ for (dirname, subdirs, files) in ftp.walk('.'):
     for zip_file_name in files:
         # Load only the zip files, except the BR.zip
         if '.zip' in zip_file_name and 'BR' not in zip_file_name:
-            file_name = zip_file_name.replace(".zip","")
+            file_name = zip_file_name.replace(".zip", "")
             resolution = "".join("_".join(file_name.split('_')[1:]).split())
 
             # Build target directory
@@ -177,7 +206,8 @@ with multiprocess.Pool(processes=8) as pool:
 
 # Donwload and unzip REGIC topologies from IBGE
 ftp = FTPHost.connect("geoftp.ibge.gov.br", user="anonymous", password="anonymous@")
-ftp_dir = "/organizacao_do_territorio/divisao_regional/regioes_de_influencia_das_cidades/Regioes_de_influencia_das_cidades_2018_Resultados_preliminares/"
+ftp_dir = "/organizacao_do_territorio/divisao_regional/regioes_de_influencia_das_cidades/" \
+          "Regioes_de_influencia_das_cidades_2018_Resultados_preliminares/"
 ftp.current_directory = ftp_dir
 download_and_unzip(ftp_dir, '.', 'bases_graficas_saude.zip', '../../shapes/REGIC')
 # Unzip REGIC details (internal zip)

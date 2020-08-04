@@ -285,7 +285,7 @@ cluster_cols = {
     'regic_ext_saude_baixamedia_complexidade': 'cd_baixa_media_ext',
     'regic_ext_saude_baixamediaalta_complexidade': 'cd_baixa_media_ext',
     'setor_censitario': 'subdistrito'
-} # Ommited keys are considered to have key == value in the semantics of this script
+}  # Ommited keys are considered to have key == value in the semantics of this script
 
 
 # Load the levels correlations as a pandas dataframe
@@ -350,7 +350,7 @@ def load_places():
         df = df.merge(clusters_ext.set_index('municipio'), on="municipio", how="outer")
         df[['cd_baixa_media_ext', 'cd_alta_ext']] = df[['cd_baixa_media_ext', 'cd_alta_ext']].fillna(0.0).astype(str)
 
-    df[['cd_baixa_media', 'cd_alta', 'distrito', 'cd_baixa_media_ext', 'cd_alta_ext']] = df[['cd_baixa_media', 'cd_alta', 'distrito', 'cd_baixa_media_ext', 'cd_alta_ext']].replace({'\.0':''}, regex=True)
+    df[['cd_baixa_media', 'cd_alta', 'distrito', 'cd_baixa_media_ext', 'cd_alta_ext']] = df[['cd_baixa_media', 'cd_alta', 'distrito', 'cd_baixa_media_ext', 'cd_alta_ext']].replace({'\.0': ''}, regex=True)
 
     return df        
 
@@ -408,7 +408,7 @@ def make_partition(geo_br, f_name, group, identifier, cluster_identifier, fltr=N
 
 def read_geometries_from_shapefile(origin):
     reader = shapefile.Reader(origin)
-    reader.encoding="iso-8859-1"
+    reader.encoding = "iso-8859-1"
     fields = reader.fields[1:]
     field_names = [field[0] for field in fields]
     buffer = []
@@ -429,7 +429,7 @@ def convert_as_is(dataset, skip_existing):
 
     au_type = dataset.get('au_type')
     # write the GeoJSON files
-    if 'file' in dataset: # Already in BR level
+    if 'file' in dataset:  # Already in BR level
         # Brazil
         if not (skip_existing and os.path.isfile(f'../../geojson/br/{au_type}_q0.json')):
             os.makedirs(os.path.dirname(f'../../geojson/br/{au_type}_q0.json'), exist_ok=True)
@@ -449,7 +449,7 @@ def convert_as_is(dataset, skip_existing):
             end="\r",
             flush=True
         )
-    else: # All the rest is in UF level - generate as it is and then join the features to a single, BR, geojson
+    else:  # All the rest is in UF level - generate as it is and then join the features to a single, BR, geojson
         buffer = []
         # UF (iterate)
         for root, dirs, files in os.walk(f"../../shapes/{dataset.get('origin')}"):
