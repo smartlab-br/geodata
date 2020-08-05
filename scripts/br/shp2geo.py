@@ -522,12 +522,9 @@ class Shape2Geo:
     def run(self):
         print("Starting conversion to geojson...", end='\r', flush=True)
 
-        pool_as_is = []  # Pool to address shp conversion to basic geojson
-        for dataset in self.DATASETS:
-            pool_as_is.append((dataset, self.skip_existing))
-        self.total_files = self.total_files + len(pool_as_is) + 1
+        self.total_files = self.total_files + len(self.DATASETS) + 1
         with multiprocess.Pool(processes=4) as pool:
-            pool.starmap(self.convert_as_is, pool_as_is)
+            pool.map(self.convert_as_is, self.DATASETS)
 
         # Generate combinations levels x geometries
         pool_combinations = []  # Pool to address combination of levels and resolutions of geographies

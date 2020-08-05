@@ -19,14 +19,20 @@ class Geo2Topo:
             self.base_dir = args[1]
         if len(args) > 2:
             self.skip_existing = args[2]
-
-        self.topo_logger = self.setup_logger('shapely.geos', 'log/log_topology.log', logging.INFO)
-        self.logger = self.setup_logger('general_logger', 'log/log_error.log', logging.ERROR)
         self.total_done = 0
         self.total_files = 0
 
         self.quality_levels = list(linspace(0, 0.01, 4))
         self.quality_levels.reverse()
+
+        # Guarantees the dirs and log files exist
+        # log_base_dir = '/opt/pipelines/resources/geodata/logs'
+        log_base_dir = '/var/log/pipelines/geodata'
+        os.makedirs(os.path.dirname(f'{log_base_dir}/log_topology.log'), exist_ok=True)
+        os.makedirs(os.path.dirname(f'{log_base_dir}/log_error.log'), exist_ok=True)
+        # Creates the loggers
+        self.topo_logger = self.setup_logger('shapely.geos', f'{log_base_dir}/log_topology.log', logging.INFO)
+        self.logger = self.setup_logger('general_logger', f'{log_base_dir}/log_error.log', logging.ERROR)
 
     def update_progress(self, step):
         self.total_done = self.total_done + step
@@ -110,9 +116,8 @@ class Geo2Topo:
                     meta_args.append({
                         'size': os.stat(os.path.join(root, file)).st_size,
                         'arg': (
-                            '../../geojson{}/{}'.format(path, file),
-                            '../../topojson{}/{}'.format(path, file),
-                            True
+                            '{}/geojson{}/{}'.format(self.base_dir, path, file),
+                            '{}/topojson{}/{}'.format(self.base_dir, path, file)
                         )
                     })
                     if '_q0' in file:
