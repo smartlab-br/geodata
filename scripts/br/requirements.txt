@@ -1,4 +1,4 @@
-requests==2.24.0
+requests==2.31.0
 multiprocess==0.70.10
 ftptool==0.7.1
 six==1.15.0
